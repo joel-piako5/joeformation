@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>{% block title %}Mon Site{% endblock %}</title>
+<style>
+body { font-family: 'Segoe UI', sans-serif; margin:0; background: #f4f7f9; }
+header { background: #007BFF; padding: 15px 30px; color: white; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; }
+header a { color: white; text-decoration: none; margin-left: 15px; font-weight: 500; }
+header a:hover { text-decoration: underline; }
+.container { max-width: 1000px; margin: 40px auto; padding: 0 20px; }
+button { cursor: pointer; border-radius: 5px; border: none; padding: 10px 20px; }
+.flash { color: red; text-align: center; margin-top: 10px; }
+table { width: 100%; border-collapse: collapse; }
+table th, table td { padding: 12px; border-bottom: 1px solid #ccc; text-align: left; }
+table tr:hover { background: #e9f0ff; }
+.delete-btn { color: #fff; background: #dc3545; padding: 6px 12px; border-radius: 5px; text-decoration: none; }
+.delete-btn:hover { background: #b02a37; }
+/* Responsive menu pour mobile */
+@media (max-width: 600px) {
+  header { flex-direction: column; align-items: flex-start; }
+  header div { margin-top: 10px; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div><strong>Mon Site E-learning</strong></div>
+  <div>
+    <a href="{{ url_for('homes') }}">Accueil</a>
+    <a href="{{ url_for('videos') }}">Vidéos</a>
+    <a href="{{ url_for('pdfs') }}">PDFs</a>
+    {% if session.get('is_admin') %}
+      <a href="{{ url_for('logi') }}">Administrateur</a>
+      <a href="{{ url_for('logo') }}">Déconnexion</a>
+    {% else %}
+      <a href="{{ url_for('logi') }}">Admin</a>
+    {% endif %}
+  </div>
+</header>
+
+<div class="container">
+  {% with messages = get_flashed_messages() %}
+    {% if messages %}
+      <div class="flash">
+        {% for m in messages %}
+          <p>{{ m }}</p>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+  {% block content %}{% endblock %}
+</div>
+
+</body>
+</html>

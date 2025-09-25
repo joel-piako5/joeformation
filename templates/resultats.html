@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Résultats des apprentissages</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-image: url("{{ url_for('static', filename='upload/log.jpg') }}");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            height: 100vh;
+        }
+    </style>
+</head>
+<body class="bg-light">
+<div class="container mt-5">
+    <h2>Résultats via l'équipe du dev joel piako</h2>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Étudiant</th>
+                <th>Matière</th>
+                <th>Note</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Joel piako</td>
+                <td>Création web et app mobile</td>
+                <td>18/20</td>
+            </tr>
+            <tr>
+                <td>Charlie piako</td>
+                <td>Excel</td>
+                <td>19/20</td>
+            </tr>
+            <tr>
+                <td>Chris ndonga</td>
+                <td>Base python</td>
+                <td>17/20</td>
+            </tr>
+        </tbody>
+    </table>
+    <a href="{{ url_for('dashboard') }}" class="btn btn-primary mt-3">Retour au Dashboard</a>
+</div>
+</body>
+</html>

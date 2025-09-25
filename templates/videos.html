@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Vidéos{% endblock %}
+{% block content %}
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-image: url("{{ url_for('static', filename='upload/foud.jpg') }}");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            height: 100vh;
+        }
+    </style>
+<h2 style="text-align:center; margin-bottom:30px;">Vidéos disponibles</h2>
+<ul style="list-style:none; padding:0; max-width:600px; margin:auto;">
+{% for f in files %}
+  <li style="background:#c6fc81; margin-bottom:10px; padding:15px 20px;
+  border-radius:8px; box-shadow:0 4px 8px rgba(0,0,0,0.05); text-align:center;">
+    <a href="{{ url_for('watch_video', filename=f) }}" style="text-decoration:none; color:#007BFF; font-weight:500;">{{ f }}</a>
+  </li>
+{% endfor %}
+</ul>
+{% endblock %}

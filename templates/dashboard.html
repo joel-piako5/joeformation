@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tableau de bord</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+            margin: 0;
+            padding: 0;
+            background-image: url("{{ url_for('static', filename='upload/rest.jpg') }}");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            height: 200vh;
+    }
+    body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #0067dd;
+        }
+        .dashboard-container {
+            padding: 50px 0;
+        }
+        .card {
+            border: none;
+            transition: 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        }
+    .nav-link.active {
+      font-weight: bold;
+      color: #dd0093!important;
+    }  #dd0093
+    .card:hover {
+      transform: scale(1.02);
+      transition: 0.3s;
+    }
+    .navbar-brand {
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Barre de navigation -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container">
+      <a class="navbar-brand" href="#">🎓 Formation En Ligne</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+            <li class="nav-item"><a class="nav-link active" href="#">Voulez-vous vous déconnecter ?</a></li>
+          <li class="nav-item"><a class="nav-link" href="{{ url_for('logout') }}">Déconnexion</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+  <!-- Contenu -->
+  <div class="container py-5">
+    <h2 class="mb-4">Bienvenue sur votre tableau de bord</h2>
+    <div class="row g-4">
+      <!-- Carte Cours -->
+      <div class="col-md-4">
+        <a href="{{ url_for('homes') }}" class="text-decoration-none text-dark">
+          <div class="card shadow-sm h-100">
+            <div class="card-body text-center">
+              <h5 class="card-title">📚Accéder au cours</h5>
+              <a href="homes" class="btn btn-primary">Voir le cours en videos et accéder aux pdfs disponibles.</a>
+            </div>
+          </div>
+        </a>
+      </div>
+      <!-- Carte Résultats -->
+      <div class="col-md-4">
+          <a href="{{ url_for('resultats') }}" class="text-decoration-none text-dark">
+          <div class="card shadow-sm h-100">
+            <div class="card-body text-center">
+              <h5 class="card-title">📊 Résultats</h5>
+               <a href="resultats" class="btn btn-success">Vérifiez vos résultats d’évaluation.</a>
+            </div>
+          </div>
+        </a>
+      </div>
+      <!-- Carte Liste_matiere -->
+      <div class="col-md-4">
+        <a href="{{ url_for('liste_matieres') }}" class="text-decoration-none text-dark">
+          <div class="card shadow-sm h-100">
+            <div class="card-body text-center">
+              <h5 class="card-title">📚 Listes des matières</h5>
+               <a href="liste_matieres" class="btn btn-warning">Voir la liste des matières qui seront (disponible) pour la formation.</a>
+            </div>
+          </div>
+        </a>
+      </div>
+      <!-- Carte quiz -->
+      <div class="col-md-4">
+        <a href="{{ url_for('page') }}" class="text-decoration-none text-dark">
+          <div class="card shadow-sm h-100">
+            <div class="card-body text-center">
+              <h5 class="card-title">🗓 Entrainez-vous</h5>
+              <a href="page" class="btn btn-primary">Entrainez avec de questions.</a>
+            </div>
+          </div>
+        </a>
+      </div>
+        <!-- Carte Calendrier -->
+      <div class="col-md-4">
+        <a href="{{ url_for('calendrier') }}" class="text-decoration-none text-dark">
+          <div class="card shadow-sm h-100">
+            <div class="card-body text-center">
+              <h5 class="card-title">🗓 Calendrier</h5>
+              <a href="calendrier" class="btn btn-primary">Consultez le calendrier de formation.</a>
+            </div>
+          </div>
+        </a>
+      </div>
+        <!-- Carte Connexion admin -->
+      <div class="col-md-4">
+        <a href="{{ url_for('histoire') }}" class="text-decoration-none text-dark">
+          <div class="card shadow-sm h-100">
+            <div class="card-body text-center">
+              <h5 class="card-title"> Derrière l'écran </h5>
+              <a href="histoire" class="btn btn-info">Fortifiez-vous en lisant cette histoire</a>
+            </div>
+          </div>
+        </a>
+      </div>
+      <!-- Carte Contact -->
+      <div class="col-md-4">
+          <a href="{{ url_for('contact') }}" class="text-decoration-none text-dark">
+          <div class="card shadow-sm h-100">
+            <div class="card-body text-center">
+              <h5 class="card-title">✉ Contact</h5>
+               <a href="/contact" class="btn btn-warning">Contactez le dev joel piako et son équipe de formation.</a>
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+    <a href="{{ url_for('index') }}" class="btn btn-outline-primary btn-lg btn-custom">Retour accueil</a>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

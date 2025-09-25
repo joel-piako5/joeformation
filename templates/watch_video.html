@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Lecture Vidéo{% endblock %}
+{% block content %}
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-image: url("{{ url_for('static', filename='upload/lab.jpg') }}");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            height: 100vh;
+        }
+    </style>
+<h2 style="text-align:center; margin-bottom:20px;">Lecture Vidéo</h2>
+<video controls style="display:block; margin:auto; border-radius:10px; box-shadow:0 8px 20px rgba(0,0,0,0.1); max-width:100%;">
+  <source src="{{ url_for('uploaded_file', filename=filename) }}">
+  Votre navigateur ne supporte pas la lecture vidéo.
+</video>
+{% endblock %}

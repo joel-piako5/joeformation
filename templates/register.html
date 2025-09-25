@@ -3,7 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <title>Inscription - Plateforme éducative</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- important pour mobile -->
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
     <style>
         body {
             margin: 0;
@@ -12,26 +15,32 @@
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
-            height: 100vh;
-    }
+            min-height: 100vh;
+
+            /* centrer verticalement et horizontalement */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
         .register-container {
+            width: 95%;
             max-width: 500px;
-            margin: 80px auto;
             padding: 30px;
             background-color: #09fafa;
-            border-radius: 10px;
-            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+            border-radius: 15px;
+            box-shadow: 0 4px 25px rgba(0,0,0,0.2);
         }
         .register-container h2 {
             text-align: center;
             margin-bottom: 25px;
-            font-weight: 600;
+            font-weight: 700;
+            font-size: 2rem;
+            color: #000;
         }
         .info-connexion {
-            text-align: center;
-            font-size: 15px;
+            font-size: 0.95rem;
             color: #333;
-            margin-top: 15px;
+            margin-top: 12px;
             background-color: #f0f8ff;
             padding: 10px;
             border-radius: 8px;
@@ -51,6 +60,7 @@
         </div>
       {% endif %}
     {% endwith %}
+
     <form method="POST" action="/register">
         <div class="mb-3">
             <label for="nom" class="form-label">Nom complet</label>
@@ -66,20 +76,24 @@
         </div>
         <button type="submit" class="btn btn-success w-100">S'inscrire</button>
     </form>
+
+    <!-- Paragraphes explicatifs -->
     <p class="info-connexion">
         ✍ <strong>Inscription :</strong> Créez un compte pour accéder aux cours, vidéos et résultats.
-       </p>
-       <p class="info-connexion">
-       ✅ L'inscription est rapide, gratuite et ne prend que quelques secondes.
-       </p>
-       <p class="info-connexion">
-       ✅Sauvegardez vos cours et reprenez-les à tout moment.</p>
-       <p class="info-connexion">
-       ✅Vos informations sont sécurisées et protégées.</p>
-       <p class="info-connexion">
-       👤 Déjà inscrit ? <a href="/login" style="color: #007bff; text-decoration: none;">Connectez-vous ici</a>.
-       </p>
-    </div>
+    </p>
+    <p class="info-connexion">
+        ✅ L'inscription est rapide, gratuite et ne prend que quelques secondes.
+    </p>
+    <p class="info-connexion">
+        ✅ Sauvegardez vos cours et reprenez-les à tout moment.
+    </p>
+    <p class="info-connexion">
+        ✅ Vos informations sont sécurisées et protégées.
+    </p>
+    <p class="info-connexion text-center">
+        👤 Déjà inscrit ? <a href="/login" style="color: #007bff; text-decoration: none;"><strong>Connectez-vous ici</strong></a>.
+    </p>
 </div>
+
 </body>
 </html>

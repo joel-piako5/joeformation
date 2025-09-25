@@ -2,8 +2,11 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Résultat</title>
+    <title>Résultat - Quiz</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
     <style>
         body {
             margin: 0;
@@ -12,13 +15,54 @@
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
-            height: 100vh;
+            min-height: 100vh;
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .result-container {
+            background: rgba(255,255,255,0.95);
+            border-radius: 15px;
+            padding: 40px 30px;
+            text-align: center;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 6px 25px rgba(0,0,0,0.2);
+            animation: fadeIn 0.8s ease;
+        }
+
+        .result-container h3 {
+            font-weight: bold;
+            color: #007bff;
+            margin-bottom: 20px;
+        }
+
+        .result-container p {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+        }
+
+        .btn-custom {
+            margin-top: 20px;
+            padding: 12px 20px;
+            font-size: 1.1rem;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
-<body class="container py-5">
-    <div class="alert alert-info text-center">
+<body>
+    <div class="result-container">
         <h3>Votre score : {{ score }}/{{ total }}</h3>
+
         {% if score == total %}
             <p>🎉 Félicitations ! Vous êtes un expert !</p>
         {% elif score >= total/2 %}
@@ -26,7 +70,8 @@
         {% else %}
             <p>⚠ Besoin de réviser davantage.</p>
         {% endif %}
+
+        <a href="{{ url_for('dashboard') }}" class="btn btn-outline-primary btn-lg btn-custom">⬅ Retour au tableau de bord</a>
     </div>
-     <a href="{{ url_for('dashboard') }}" class="btn btn-outline-primary btn-lg btn-custom">Accéder au bord</a>
 </body>
 </html>

@@ -15,11 +15,13 @@
         body {
             margin: 0;
             padding: 0;
-            background-image: url("{{ url_for('static', filename='upload/fond.jpg') }}");
+            background: linear-gradient(to right, #007bff, #00c6ff);
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
-            weight: 100vh;
+            min-height: 100vh;
+            color: #fff;
+            font-family: 'Segoe UI', sans-serif;
         }
 
         .navbar-brand {
@@ -170,3 +172,4 @@
 </body>
 
 </html>
+

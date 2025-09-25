@@ -4,25 +4,109 @@
     <meta charset="UTF-8">
     <title>Quiz Informatique</title>
     <link rel="stylesheet" href="/static/css.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #0d6efd, #6610f2);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Segoe UI', sans-serif;
+            color: #fff;
+        }
+
+        .container {
+            text-align: center;
+            max-width: 700px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 40px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+            animation: fadeIn 1s ease;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            font-size: 1.1rem;
+            margin-bottom: 30px;
+            color: #f0f0f0;
+        }
+
+        .card {
+            background: #fff;
+            color: #333;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            margin-bottom: 25px;
+            animation: slideUp 0.8s ease;
+        }
+
+        .card h2 {
+            color: #0d6efd;
+            margin-bottom: 15px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 14px 30px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border-radius: 8px;
+            text-decoration: none;
+            background: #198754;
+            color: white;
+            transition: transform 0.2s, background 0.3s;
+        }
+
+        .btn:hover {
+            background: #157347;
+            transform: scale(1.05);
+        }
+
+        footer {
+            margin-top: 20px;
+            font-size: 0.9rem;
+            color: #f8f9fa;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
 </head>
 <body>
     <div class="container">
         <header>
             <h1>💻 Bienvenue au Quiz Informatique</h1>
-            <p>Testez vos connaissances en programmation, web et informatique générale réalisé par ir joel piako.</p>
+            <p>Testez vos connaissances en programmation, web et informatique générale.<br>
+            Réalisé par <strong>Ir Joel Piako</strong>.</p>
         </header>
 
         <main>
             <div class="card">
-                <h2>Prêt à relever le défi ?</h2>
-                <p>Le quiz contient plusieurs questions à choix multiples.
+                <h2>🚀 Prêt à relever le défi ?</h2>
+                <p>Le quiz contient plusieurs questions à choix multiples.<br>
                 Votre score final sera affiché à la fin.</p>
-                <a href="quizz" class="btn">Commencer le Quiz 🚀</a>
+                <a href="{{ url_for('quizz') }}" class="btn">Commencer le Quiz</a>
             </div>
         </main>
 
         <footer>
-            <p>© 2025 Quiz Informatique | Créé avec ❤ en Flask par ir joel piako</p>
+            <p>© 2025 Quiz Informatique | Créé avec ❤ en Flask par Ir Joel Piako</p>
         </footer>
     </div>
 </body>

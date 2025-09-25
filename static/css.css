@@ -6,25 +6,25 @@ body {
 }
 /* Pour agrandir le titre principal */
 h1 {
-  font-size: 36px;
+  font-size: 19px;
   font-weight: bold;
 }
 
 /* Pour les sous-titres */
 h2, h3 {
-  font-size: 28px;
+  font-size: 15px;
 }
 
 /* Pour les boutons */
 button, .btn {
-  font-size: 20px;
-  padding: 12px 24px;
+  font-size: 30px;
+  padding: 16px 27px;
 }
 
 /* Pour les paragraphes */
 p {
-  font-size: 18px;
-  line-height: 1.6;
+  font-size: 12px;
+  line-height: 1.3;
 }
 
 .container { display: flex; flex-direction: column; min-height: 100vh; justify-content: space-between; }
@@ -39,3 +39,4 @@ footer { text-align: center; padding: 15px; font-size: 0.9rem; background: rgba(
 .result-item { text-align: left; margin: 10px 0; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 8px; }
 
 .result-item strong { color: #ffcc00; }
+

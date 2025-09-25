@@ -13,61 +13,16 @@
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
-            min-height: 100vh;
-            font-family: 'Segoe UI', sans-serif;
-        }
-
-        .card {
-            border-radius: 15px;
-            overflow: hidden;
-            animation: fadeIn 0.8s ease;
-        }
-
-        .card-header {
-            font-size: 1.8rem;
-            font-weight: bold;
-            letter-spacing: 1px;
-        }
-
-        .list-group-item {
-            font-size: 1.1rem;
-            padding: 15px 20px;
-            transition: all 0.3s ease;
-        }
-
-        .list-group-item:hover {
-            background-color: #f0f8ff;
-            transform: translateX(5px);
-        }
-
-        .btn-custom {
-            display: block;
-            width: 100%;
-            margin-top: 20px;
-            font-weight: bold;
-            border-radius: 8px;
-            padding: 12px;
-            transition: transform 0.2s ease, background 0.3s;
-        }
-
-        .btn-custom:hover {
-            transform: scale(1.05);
-            background: #0d6efd;
-            color: #fff;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+            height: 140vh;
         }
     </style>
 </head>
-<body class="d-flex justify-content-center align-items-center">
+<body class="bg-light">
 
     <div class="container mt-5">
         <div class="card shadow-lg">
             <div class="card-header bg-primary text-white text-center">
-                📚 Liste des matières
+                <h2>📚 Liste des matières</h2>
             </div>
             <div class="card-body">
                 <ul class="list-group list-group-flush">
@@ -77,8 +32,8 @@
                             <span class="badge bg-success rounded-pill">Disponible</span>
                         </li>
                     {% endfor %}
+                    <a href="{{ url_for('dashboard') }}" class="btn btn-outline-primary btn-lg btn-custom">Retour au Dashboard</a>
                 </ul>
-                <a href="{{ url_for('dashboard') }}" class="btn btn-outline-primary btn-lg btn-custom">⬅ Retour au Dashboard</a>
             </div>
         </div>
     </div>

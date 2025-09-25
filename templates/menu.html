@@ -1,36 +1,89 @@
 {% extends "base.html" %}
 {% block title %}Menu{% endblock %}
 {% block content %}
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            background-image: url("{{ url_for('static', filename='upload/admi.jpg') }}");
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            height: 100vh;
-        }
-    </style>
-<div style="text-align:center; margin-top:50px;">
+<style>
+    body {
+        margin: 0;
+        padding: 0;
+        background-image: url("{{ url_for('static', filename='upload/admi.jpg') }}");
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        min-height: 100vh;
+        font-family: 'Segoe UI', sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .dashboard-card {
+        background: rgba(255,255,255,0.95);
+        padding: 40px 30px;
+        border-radius: 15px;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.25);
+        max-width: 900px;
+        width: 100%;
+        text-align: center;
+        animation: fadeIn 0.8s ease;
+    }
+
+    .dashboard-card h2 {
+        margin-bottom: 30px;
+        color: #007bff;
+        font-weight: bold;
+    }
+
+    .dashboard-buttons {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 15px;
+    }
+
+    .dashboard-buttons a {
+        padding: 15px 25px;
+        border-radius: 8px;
+        color: #fff;
+        font-weight: bold;
+        text-decoration: none;
+        transition: transform 0.2s ease, opacity 0.3s;
+        min-width: 150px;
+        text-align: center;
+        display: inline-block;
+    }
+
+    .dashboard-buttons a:hover {
+        transform: scale(1.05);
+        opacity: 0.9;
+    }
+
+    /* Couleurs des boutons */
+    .btn-add-video { background: #28a745; }
+    .btn-add-pdf { background: #17a2b8; }
+    .btn-view-video { background: #007bff; }
+    .btn-view-pdf { background: #6c757d; }
+    .btn-logout { background: #dc3545; }
+    .btn-users { background: #ee8ec6; }
+    .btn-delete { background: #28a745; }
+    .btn-return { background: #f3e305; color:#333; }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+
+<div class="dashboard-card">
     <h2>Tableau de bord Admin</h2>
-    <div style="margin-top:30px;">
-        <a href="{{ url_for('add_video') }}" style="background:#28a745; color:white;
-        padding:15px 25px; border-radius:8px; margin:10px; display:inline-block;">Ajouter Vidéo</a>
-        <a href="{{ url_for('add_pdf') }}" style="background:#17a2b8; color:white;
-        padding:15px 25px; border-radius:8px; margin:10px; display:inline-block;">Ajouter PDF</a>
-        <a href="{{ url_for('videos') }}" style="background:#007BFF; color:white;
-        padding:15px 25px; border-radius:8px; margin:10px; display:inline-block;">Voir Vidéos</a>
-        <a href="{{ url_for('pdfs') }}" style="background:#6c757d; color:white;
-        padding:15px 25px; border-radius:8px; margin:10px; display:inline-block;">Voir PDFs</a>
-        <a href="{{ url_for('logo') }}" style="background:#dc3545; color:white;
-         padding:15px 25px; border-radius:8px; margin:10px; display:inline-block;">Déconnexion</a>
-        <a href="{{ url_for('profile') }}" style="background:#ee8ec6; color:white;
-         padding:15px 25px; border-radius:8px; margin:10px; display:inline-block;">Liste des utilisateurs</a>
-        <a href="{{ url_for('delete_file') }}" style="background:#28a745; color:white;
-        padding:15px 25px; border-radius:8px; margin:10px; display:inline-block;">Supprimer les fichiers</a>
-        <a href="{{url_for('homes') }}" style="background:#f3e305; color:white;
-         padding:15px 25px; border-radius:8px; margin:10px; display:inline-block;">Retour</a>
+    <div class="dashboard-buttons">
+        <a href="{{ url_for('add_video') }}" class="btn-add-video">Ajouter Vidéo</a>
+        <a href="{{ url_for('add_pdf') }}" class="btn-add-pdf">Ajouter PDF</a>
+        <a href="{{ url_for('videos') }}" class="btn-view-video">Voir Vidéos</a>
+        <a href="{{ url_for('pdfs') }}" class="btn-view-pdf">Voir PDFs</a>
+        <a href="{{ url_for('logo') }}" class="btn-logout">Déconnexion</a>
+        <a href="{{ url_for('profile') }}" class="btn-users">Liste des utilisateurs</a>
+        <a href="{{ url_for('delete_file') }}" class="btn-delete">Supprimer les fichiers</a>
+        <a href="{{ url_for('homes') }}" class="btn-return">Retour</a>
     </div>
 </div>
 {% endblock %}

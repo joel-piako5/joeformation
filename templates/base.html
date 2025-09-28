@@ -1,47 +1,18 @@
-{% extends "base.html" %}
-{% block title %}Accueil{% endblock %}
-{% block content %}
-<style>
-body {
-margin: 0;
-padding: 0;
-background-image: url("{{ url_for('static', filename='upload/dash.jpg') }}");
-background-size: cover;
-background-position: center;
-background-repeat: no-repeat;
-height: 100vh;
-}
-.info-section {
-background-color: #f0f8ff;
-border-left: 4px solid #007bff;
-padding: 20px;
-margin-top: 30px;
-border-radius: 10px;
-color: #1e1e2f;
-font-family: 'Segoe UI', sans-serif;
-box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-animation: fadeIn 0.8s ease;
-}
-</style>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}{% endblock %}</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+</head>
+<body>
+    {% block content %}{% endblock %}
+</body>
+</html>
 
-<div style="text-align:center; margin-top:110px;">  
-    <h1>Bienvenue sur Mon Site E-learning</h1>  
-    <h2>Choisissez votre action :</h2>  
-    <div style="margin-top:50px;">  
-        <a href="{{ url_for('videos') }}" style="background:#0faef8;  
-         color:white; padding:15px 25px; border-radius:8px; margin:10px; display:inline-block;">Vidéos</a>  
-        <a href="{{ url_for('pdfs') }}" style="background: #e60cd3;  
-         color:white; padding:15px 25px; border-radius:8px; margin:10px; display:inline-block;">PDFs</a>  
-        <a href="{{ url_for('logi') }}" style="background:#4607f5;  
-         color:white; padding:15px 25px; border-radius:8px; margin:10px; display:inline-block;">Seul l'administrateur</a>  
-    </div>  
-         <a href="{{ url_for('dashboard') }}" style="background: #e4402a;  
-         color:white; padding:15px 25px; border-radius:8px; margin:10px; display:inline-block;">Retour au bord</a>  
-</div>  
-    <div class="info-section">  
-  <h3>🎥 Vidéos de formation</h3>  
-  <p>Accédez à toutes vos vidéos éducatives pour apprendre à votre rythme. Chaque vidéo est conçue pour être courte, claire et pratique.</p>    <h3>📄 Documents PDF</h3>  
-  <p>Téléchargez les supports de cours, exercices corrigés et fiches résumées en format PDF pour étudier hors ligne.</p>    <h3>👨‍💻 Espace Administrateur</h3>  
-  <p>Ce bouton est réservé aux administrateurs. Il permet de gérer les utilisateurs, ajouter de nouvelles vidéos et organiser les contenus.</p>    <p class="important-note">📢 Astuce : Si un contenu ne s'affiche pas correctement, actualisez la page ou vérifiez votre connexion.</p>  
-</div>  
-{% endblock %}

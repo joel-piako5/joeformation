@@ -171,8 +171,8 @@ def allowed_file(filename, filetype):
 
 # Accueil pour la page de cours
 @app.route("/homes")
-def  base():
-    return render_template("base.html")
+def  homes():
+    return render_template("homes.html")
 
 #connexion admin
 @app.route("/logi", methods=["GET", "POST"])
@@ -370,5 +370,6 @@ if __name__ == "__main__":
         import os
     port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port)
+
 
 

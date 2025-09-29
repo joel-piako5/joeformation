@@ -3,14 +3,17 @@
 {% block content %}
 <style>
     body {
-        margin: 0;
-        padding: 0;
-        background-image: url("{{ url_for('static', filename='upload/dash.jpg') }}");
-        background-size: cover;
-        background-position: center;
-        background-repeat: no-repeat;
-        min-height: 100vh;
-        transition: background 0.3s, color 0.3s;
+    margin: 0;
+    padding: 0;
+    /* Suppression de l'image de fond */
+    background-image: none;
+    
+    /* Couleur propre et moderne */
+    background-color: #e6f0ff; /* un bleu très clair et doux */
+    
+    min-height: 100vh;
+    font-family: 'Poppins', sans-serif;
+    transition: background 0.3s ease, color 0.3s ease;
     }
 
     .theme-toggle {
@@ -150,4 +153,5 @@
     });
 </script>
 {% endblock %}
+
 

@@ -14,86 +14,117 @@
              background-size: cover;
              background-position: center;
              background-repeat: no-repeat;
-             height: 100vh;
+             min-height: 100vh;
+             font-family: 'Poppins', sans-serif;
+             transition: background 0.3s ease, color 0.3s ease;
         }
+
         .hero {
             padding: 80px 0;
             text-align: center;
         }
-        .hero h1 {
+
+        h1 {
+            text-align: center;
             font-size: 3rem;
-            font-weight: 600;
+            color: #1e90ff;
+            margin-bottom: 50px;
+            animation: fadeInDown 1s ease;
         }
-        .btn-custom {
-            margin: 10px;
+
+        .section {
+            background: #e6f0ff;
+            border-radius: 15px;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+            padding: 35px 30px;
+            margin: 20px auto;
+            transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
         }
+
+        .section:hover {
+            transform: translateY(-7px);
+            box-shadow: 0 25px 50px rgba(0,0,0,0.15);
+        }
+
+        .section h2 {
+            color: #1e90ff;
+            font-size: 2rem;
+            margin-bottom: 15px;
+        }
+
+        .section p {
+            font-size: 1.1rem;
+            line-height: 1.7;
+        }
+
+        .btn {
+            margin-top: 20px;
+            padding: 12px 25px;
+            font-size: 1.1rem;
+            color: #fff;
+            background: #1e90ff;
+            border: none;
+            border-radius: 50px;
+            text-decoration: none;
+            transition: background 0.3s ease, transform 0.2s ease;
+        }
+
+        .btn:hover {
+            background: #0066cc;
+            transform: translateY(-3px);
+        }
+
         footer {
             background-color: gray;
             padding: 20px 0;
             text-align: center;
             margin-top: 60px;
+            color: white;
         }
 
-    h1 {
-        text-align: center;
-        font-size: 3rem;
-        color: #1e90ff;
-        margin-bottom: 50px;
-        animation: fadeInDown 1s ease;
-    }
-    .section {
-        background: #e6f0ff;
-        border-radius: 15px;
-        box-shadow: 0 15px 30px rgba(0,0,0,0.1);
-        padding: 35px 30px;
-        margin-bottom: 30px;
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-    .section:hover {
-        transform: translateY(-7px);
-        box-shadow: 0 25px 50px rgba(0,0,0,0.15);
-    }
-    .section h2 {
-        color: #1e90ff;
-        font-size: 2rem;
-        margin-bottom: 15px;
-    }
-    .section p {
-        font-size: 1.1rem;
-        line-height: 1.7;
-    }
-    .btn {
-        display: inline-block;
-        margin-top: 20px;
-        padding: 12px 25px;
-        font-size: 1.1rem;
-        color: #fff;
-        background: #1e90ff;
-        border: none;
-        border-radius: 50px;
-        text-decoration: none;
-        transition: background 0.3s ease, transform 0.2s ease;
-    }
-    .btn:hover {
-        background: #0066cc;
-        transform: translateY(-3px);
-    }
-    @keyframes fadeInDown {
-        from {opacity: 0; transform: translateY(-30px);}
-        to {opacity: 1; transform: translateY(0);}
-    }
-    @media (max-width: 768px) {
-        h1 {
-            font-size: 2.2rem;
+        @keyframes fadeInDown {
+            from {opacity: 0; transform: translateY(-30px);}
+            to {opacity: 1; transform: translateY(0);}
         }
-        .section h2 {
-            font-size: 1.6rem;
+
+        @media (max-width: 768px) {
+            h1 { font-size: 2.2rem; }
+            .section h2 { font-size: 1.6rem; }
+            .btn { font-size: 1rem; padding: 10px 20px; }
         }
-        .btn {
-            font-size: 1rem;
-            padding: 10px 20px;
+
+        /* 🌙 Mode sombre */
+        body.dark {
+            background: #121212 !important;
+            color: #f8f9fa;
         }
-    }
+        body.dark .section {
+            background: #1e1e1e;
+            color: #f8f9fa;
+        }
+        body.dark h1, 
+        body.dark .section h2 {
+            color: #20c997;
+        }
+        body.dark footer {
+            background: #1e1e1e;
+            color: #ddd;
+        }
+        body.dark .btn {
+            background: #20c997;
+        }
+        body.dark .btn:hover {
+            background: #138f6e;
+        }
+
+        /* Bouton switch */
+        .theme-toggle {
+            border: none;
+            background: none;
+            font-size: 1.4rem;
+            cursor: pointer;
+            margin-left: 15px;
+        }
     </style>
 </head>
 <body>
@@ -106,7 +137,7 @@
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ms-auto">
+            <ul class="navbar-nav ms-auto align-items-lg-center">
                 <li class="nav-item"><a class="nav-link" href="{{ url_for('index') }}">Accueil</a></li>
                 <li class="nav-item"><a class="nav-link" href="{{ url_for('register') }}">Inscription</a></li>
                 <li class="nav-item"><a class="nav-link" href="{{ url_for('login') }}">Connexion</a></li>
@@ -114,6 +145,10 @@
                 <li class="nav-item"><a class="nav-link" href="{{ url_for('dashboard') }}">Dashboard</a></li>
                 <li class="nav-item"><a class="nav-link text-danger" href="{{ url_for('logout') }}">Déconnexion</a></li>
                 {% endif %}
+                <!-- 🌙/☀️ Bouton -->
+                <li class="nav-item">
+                    <button id="theme-toggle" class="theme-toggle">🌙</button>
+                </li>
             </ul>
         </div>
     </div>
@@ -127,48 +162,66 @@
     <a href="{{ url_for('login') }}" class="btn btn-outline-primary btn-lg btn-custom">Se connecter</a>
 </section>
 
+<!-- ✅ Sections -->
+<div class="container">
     <div class="section">
         <h2>Découvrez l’informatique autrement</h2>
         <p>Plongez dans un univers où apprendre l’informatique devient une
-          expérience interactive et enrichissante. Nos cours allient théorie
-          et pratique pour que chaque concept devienne immédiatement utile et
-          compréhensible. Développez vos compétences à votre rythme, avec des
-          contenus modernes et adaptés aux besoins du marché.</p>
+          expérience interactive et enrichissante...</p>
         <a href="{{ url_for('register') }}" class="btn">Commencez Maintenant</a>
     </div>
 
     <div class="section">
         <h2>Apprenez à coder comme un pro</h2>
-        <p>Vous rêvez de maîtriser les langages de programmation les plus demandés ? Nos formations vous guident pas à pas,
-          des bases jusqu’aux projets avancés. Avec des exercices pratiques, des projets réels et un suivi personnalisé,
-          vous transformez votre apprentissage en compétences concrètes et recherchées.</p>
+        <p>Vous rêvez de maîtriser les langages de programmation les plus demandés ?...</p>
         <a href="{{ url_for('register') }}" class="btn">Essayez Gratuitement</a>
     </div>
+
     <div class="section">
         <h2>Transformez votre passion en carrière</h2>
-        <p>L’informatique n’est pas seulement un savoir, c’est un tremplin vers des opportunités infinies.
-          Grâce à nos modules conçus par des experts, vous pouvez construire votre portfolio, préparer des certifications reconnues
-          et booster votre carrière. Chaque leçon vous rapproche de votre objectif professionnel.</p>
+        <p>L’informatique n’est pas seulement un savoir, c’est un tremplin vers des opportunités infinies...</p>
         <a href="{{ url_for('register') }}" class="btn">Rejoignez-Nous</a>
     </div>
+
     <div class="section">
         <h2>Une formation flexible et moderne</h2>
-        <p>Apprenez où vous voulez, quand vous voulez. Notre plateforme en ligne s’adapte à votre emploi du temps et vous offre
-          une expérience fluide sur ordinateur, tablette ou smartphone. Profitez d’outils interactifs, de quiz instantanés et de
-          projets stimulants pour rendre chaque session captivante.</p>
+        <p>Apprenez où vous voulez, quand vous voulez. Notre plateforme en ligne s’adapte...</p>
         <a href="{{ url_for('register') }}" class="btn">Découvrir la Plateforme</a>
     </div>
+
     <div class="section">
         <h2>Rejoignez une communauté dynamique</h2>
-        <p>Ne restez pas seul dans votre apprentissage ! Rejoignez notre communauté d’étudiants et de professionnels passionnés,
-          échangez vos idées, résolvez des défis ensemble et inspirez-vous des réussites de chacun. Apprendre l’informatique
-          devient une aventure collective et motivante.</p>
+        <p>Ne restez pas seul dans votre apprentissage ! Rejoignez notre communauté...</p>
         <a href="{{ url_for('register') }}" class="btn">Rejoignez la Communauté</a>
     </div>
+</div>
+
+<!-- ✅ Footer -->
 <footer>
-    &copy; 2025 MMA family goat. ici la formation de l'homme complet.
+    &copy; 2025 MMA family goat. Ici la formation de l'homme complet.
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    const toggleBtn = document.getElementById("theme-toggle");
+    const body = document.body;
+
+    // Charger le thème stocké
+    if (localStorage.getItem("theme") === "dark") {
+        body.classList.add("dark");
+        toggleBtn.textContent = "☀️";
+    }
+
+    toggleBtn.addEventListener("click", () => {
+        body.classList.toggle("dark");
+        if (body.classList.contains("dark")) {
+            toggleBtn.textContent = "☀️";
+            localStorage.setItem("theme", "dark");
+        } else {
+            toggleBtn.textContent = "🌙";
+            localStorage.setItem("theme", "light");
+        }
+    });
+</script>
 </body>
-</html>
+    </html>

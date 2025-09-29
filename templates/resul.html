@@ -189,7 +189,16 @@
     setInterval(createConfetti, 200);
     {% endif %}
 </script>
-
+<!-- Place ce script à la fin de ton body, après le script existant -->
+<script>
+    {% if score == total %}
+    // Créer l’audio de victoire
+    const audio = new Audio("{{ url_for('static', filename='sounds/victory.mp3') }}");
+    audio.volume = 0.5; // volume modéré
+    audio.play();
+    {% endif %}
+</script>
 </body>
 </html>
+
 

@@ -2,8 +2,10 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Contactez-nous</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
     <style>
         body {
             margin: 0;
@@ -12,25 +14,112 @@
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
-            height: 100vh;
+            min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-
         }
+
+        .overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.35);
+            z-index: 0;
+        }
+
         .contact-card {
-            background: #09fafa;
+            position: relative;
+            z-index: 1;
+            background: rgba(255, 255, 255, 0.95);
             border-radius: 15px;
-            padding: 30px;
-            max-width: 500px;
+            padding: 30px 20px;
+            max-width: 600px;
             width: 100%;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+            min-height: 80vh;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+            animation: fadeIn 0.8s ease;
+        }
+
+        h2 {
+            font-weight: bold;
+            color: #0d6efd;
+        }
+
+        .btn-custom {
+            margin-top: 15px;
+            border-radius: 8px;
+            font-weight: bold;
+            padding: 10px;
+            width: 100%;
+        }
+
+        /* Animation */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 📱 Responsive */
+        @media (max-width: 768px) {
+            .contact-card {
+                padding: 20px 15px;
+                min-height: 100vh;
+                border-radius: 0;
+            }
+            h2 { font-size: 1.5rem; }
+        }
+
+        /* 🌙 Mode sombre */
+        body.dark .contact-card {
+            background: rgba(20, 20, 20, 0.95);
+            color: #f8f9fa;
+        }
+        body.dark h2 {
+            color: #20c997;
+        }
+        body.dark .form-control {
+            background: #2d2d2d;
+            border: 1px solid #444;
+            color: #fff;
+        }
+        body.dark .form-control::placeholder {
+            color: #bbb;
+        }
+        body.dark .btn-primary {
+            background-color: #20c997;
+            border: none;
+        }
+        body.dark .btn-outline-primary {
+            border-color: #20c997;
+            color: #20c997;
+        }
+        body.dark .btn-outline-primary:hover {
+            background-color: #20c997;
+            color: #fff;
+        }
+
+        /* Position du switch */
+        .theme-toggle {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            cursor: pointer;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
         }
     </style>
 </head>
 <body>
+    <div class="overlay"></div>
+
     <div class="contact-card">
+        <!-- bouton switch -->
+        <button id="theme-toggle" class="theme-toggle">🌙</button>
+
         <h2 class="text-center mb-4">📩 Contactez-nous</h2>
+        
         {% with messages = get_flashed_messages(with_categories=true) %}
           {% if messages %}
             {% for category, message in messages %}
@@ -39,7 +128,7 @@
           {% endif %}
         {% endwith %}
 
-        <form method="POST">
+        <form method="POST" class="mb-3">
             <div class="mb-3">
                 <label class="form-label">Nom</label>
                 <input type="text" name="name" class="form-control" placeholder="Votre nom" required>
@@ -54,7 +143,31 @@
             </div>
             <button type="submit" class="btn btn-primary w-100">Envoyer</button>
         </form>
-        <a href="{{ url_for('dashboard') }}" class="btn btn-outline-primary btn-lg btn-custom">Retour</a>
+
+        <a href="{{ url_for('dashboard') }}" class="btn btn-outline-primary btn-custom">⬅ Retour</a>
     </div>
+
+    <script>
+        const toggleBtn = document.getElementById("theme-toggle");
+        const body = document.body;
+
+        // Charger préférence enregistrée
+        if (localStorage.getItem("theme") === "dark") {
+            body.classList.add("dark");
+            toggleBtn.textContent = "☀️";
+        }
+
+        toggleBtn.addEventListener("click", () => {
+            body.classList.toggle("dark");
+            if (body.classList.contains("dark")) {
+                toggleBtn.textContent = "☀️";
+                localStorage.setItem("theme", "dark");
+            } else {
+                toggleBtn.textContent = "🌙";
+                localStorage.setItem("theme", "light");
+            }
+        });
+    </script>
 </body>
 </html>
+

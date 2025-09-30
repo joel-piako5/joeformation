@@ -7,15 +7,16 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
+        /* ✅ Styles globaux */
         body {
-    margin: 0;
-    padding: 0;
-    background-image: url("{{ url_for('static', filename='upload/1725946934686.jpg') }}");
-    background-size: cover;
-    background-position: center;
-    font-family: 'Poppins', sans-serif;
-    transition: background 0.3s, color 0.3s;
-}
+            margin: 0;
+            padding: 0;
+            background-image: url("{{ url_for('static', filename='upload/1725946934686.jpg') }}");
+            background-size: cover;
+            background-position: center;
+            font-family: 'Poppins', sans-serif;
+            transition: background 0.3s, color 0.3s;
+        }
 
         .hero {
             padding: 80px 0;
@@ -115,7 +116,7 @@
             background: #138f6e;
         }
 
-        /* Bouton switch */
+        /* 🌗 Bouton switch */
         .theme-toggle {
             border: none;
             background: none;
@@ -222,7 +223,8 @@
     });
 </script>
 </body>
-    </html>
+</html>
+
 
 
 

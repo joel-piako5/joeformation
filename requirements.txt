@@ -14,3 +14,6 @@ tkPDFViewer~=0.1
 pillow~=11.3.0
 flask_sqlalchemy
 Flask-Bcrypt
+Flask-SQLAlchemy
+psycopg2-binary
+Werkzeug

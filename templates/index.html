@@ -8,18 +8,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         body {
-    margin: 0;
-    padding: 0;
-    /* Suppression de l'image de fond */
-    background-image: none;
-    
-    /* Couleur propre et moderne */
-    background-color: blue; /* un bleu très clair et doux */
-    
-    min-height: 100vh;
-    font-family: 'Poppins', sans-serif;
-    transition: background 0.3s ease, color 0.3s ease;
-        }
+            margin: 0;
+            padding: 0;
+            background-image: url("{{ url_for('static', filename='upload/1725946934686.jpg') }}");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: background 0.3s, color 0.3s;
+                }
+        body {
 
         .hero {
             padding: 80px 0;
@@ -227,6 +228,7 @@
 </script>
 </body>
     </html>
+
 
 
 

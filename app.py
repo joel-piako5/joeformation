@@ -1,52 +1,110 @@
-import sqlite3
-from sqlite3 import IntegrityError
-from flask import (Flask, render_template, request, redirect, url_for, session, flash, send_from_directory, abort, \
-Blueprint)
-from flask_sqlalchemy import SQLAlchemy
-from questionary.prompts import password
-from sqlalchemy.sql.functions import user
-from werkzeug.security import generate_password_hash, check_password_hash
+# app.py
 import os
-from werkzeug.utils import secure_filename
-from flask_bcrypt import Bcrypt
 import calendar
-from datetime import date
-from datetime import datetime
-from questions import questions
+from datetime import datetime, date
+from werkzeug.utils import secure_filename
+from werkzeug.security import generate_password_hash, check_password_hash
+from flask import (
+    Flask, render_template, request, redirect, url_for,
+    session, flash, send_from_directory, abort
+)
+from flask_sqlalchemy import SQLAlchemy
+from flask_bcrypt import Bcrypt
+import boto3
+from botocore.exceptions import BotoCoreError, NoCredentialsError
+from uuid import uuid4
+from questions import questions  # tu avais déjà ce fichier
 
+# ---------- Configuration ----------
 app = Flask(__name__)
-app.secret_key = 'joegoat532005mmaPK'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///etudiants.db'
+# secret via env for prod ; fallback temporaire
+app.secret_key = os.environ.get("SECRET_KEY", "joegoat532005mmaPK")
+
+# DATABASE: sur Render définis DATABASE_URL (Postgres). Fallback sqlite pour dev local.
+database_url = os.environ.get("DATABASE_URL", "sqlite:///etudiants.db")
+# Render fournit parfois DATABASE_URL qui commence par postgres:// --> SQLAlchemy attend postgresql://
+if database_url.startswith("postgres://"):
+    database_url = database_url.replace("postgres://", "postgresql://", 1)
+app.config['SQLALCHEMY_DATABASE_URI'] = database_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-db = SQLAlchemy(app)
-
-bcrypt = Bcrypt(app)
-
-UPLOAD_FOLDER = "uploads"
+# Uploads
+UPLOAD_FOLDER = os.environ.get("UPLOAD_FOLDER", "uploads")
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-
-ADMIN_EMAIL = "joe@mail.mma"
-ADMIN_CODE = "joe2005"
-
+# Allowed extensions
 VIDEO_EXT = {"mp4", "webm", "ogg"}
 PDF_EXT = {"pdf"}
 
-#Modèle utilisateur
+# S3 optional (recommended for Render production)
+USE_S3 = bool(os.environ.get("S3_BUCKET"))  # si S3_BUCKET est present on utilise S3
+S3_BUCKET = os.environ.get("S3_BUCKET")
+S3_REGION = os.environ.get("S3_REGION", "us-east-1")  # optionnel
+
+# ---------- Extensions ----------
+db = SQLAlchemy(app)
+bcrypt = Bcrypt(app)
+
+# ---------- Modèles ----------
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    nom = db.Column(db.String(100))
-    email = db.Column(db.String(100), unique=True)
-    password = db.Column(db.String(100))
-    role = db.Column(db.String(10), default='etudiant')  # 'admin' ou 'etudiant'
+    nom = db.Column(db.String(100), nullable=False)
+    email = db.Column(db.String(150), unique=True, nullable=False)
+    password = db.Column(db.String(200), nullable=False)
+    role = db.Column(db.String(20), default='etudiant')  # 'admin' ou 'etudiant'
 
-#Modèle résultats
 class Resultat(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nom = db.Column(db.String(100))
     matricule = db.Column(db.String(50))
     matiere = db.Column(db.String(100))
     note = db.Column(db.Float)
+
+# ---------- Helpers ----------
+def allowed_file(filename, filetype):
+    if "." not in filename:
+        return False
+    ext = filename.rsplit(".", 1)[-1].lower()
+    if filetype == "video":
+        return ext in VIDEO_EXT
+    elif filetype == "pdf":
+        return ext in PDF_EXT
+    return False
+
+def unique_filename(filename):
+    name = secure_filename(filename)
+    uid = uuid4().hex[:8]
+    return f"{uid}_{name}"
+
+# S3 upload helper (optionel)
+def upload_file_to_s3(file_stream, filename, content_type):
+    if not USE_S3:
+        raise RuntimeError("S3 non configuré")
+    s3 = boto3.client(
+        "s3",
+        region_name=S3_REGION,
+        aws_access_key_id=os.environ.get("AWS_ACCESS_KEY_ID"),
+        aws_secret_access_key=os.environ.get("AWS_SECRET_ACCESS_KEY")
+    )
+    try:
+        s3.upload_fileobj(
+            Fileobj=file_stream,
+            Bucket=S3_BUCKET,
+            Key=filename,
+            ExtraArgs={"ContentType": content_type, "ACL": "private"}
+        )
+        # retour le chemin ou key
+        return filename
+    except (BotoCoreError, NoCredentialsError) as e:
+        app.logger.error(f"S3 upload error: {e}")
+        raise
+
+def s3_file_url(key):
+    # URL privée/ publique selon configuration ; ici on renvoie la key pour que l'app sache quoi demander
+    return f"s3://{S3_BUCKET}/{key}"
+
+# Admin credentials (pour ton mécanisme simple)
+ADMIN_EMAIL = os.environ.get("ADMIN_EMAIL", "joe@mail.mma")
+ADMIN_CODE = os.environ.get("ADMIN_CODE", "joe2005")
 
 #Route d'accueil
 @app.route('/')
@@ -158,11 +216,6 @@ def liste_etudiants():
     etudiants = User.query.all()
     return render_template('liste_etudiants.html', etudiants=etudiants)
 
-#ajouter video et pdf
-def allowed_file(filename, filetype):
-    ext = filename.rsplit(".", 1)[-1].lower()
-    return (ext in VIDEO_EXT if filetype == "video" else ext in PDF_EXT)
-
 #Accueil pour la page de cours
 @app.route("/homes")
 def  homes():
@@ -197,7 +250,7 @@ def menu():
         return redirect(url_for("logi"))
     return render_template("menu.html")
 
-#page de video
+# Ajouter vidéo (admin)
 @app.route("/Admin/add_video", methods=["GET", "POST"])
 def add_video():
     if not session.get("is_admin"):
@@ -205,15 +258,25 @@ def add_video():
     if request.method == "POST":
         file = request.files.get("file")
         if file and allowed_file(file.filename, "video"):
-            filepath = os.path.join(UPLOAD_FOLDER, file.filename)
-            file.save(filepath)
-            flash("Vidéo ajoutée !")
+            filename = unique_filename(file.filename)
+            if USE_S3:
+                try:
+                    upload_file_to_s3(file, filename, file.content_type)
+                    flash("Vidéo ajoutée sur S3 !", "success")
+                except Exception:
+                    flash("Erreur upload vidéo sur S3.", "danger")
+                    return redirect(url_for("add_video"))
+            else:
+                path = os.path.join(UPLOAD_FOLDER, filename)
+                file.save(path)
+                flash("Vidéo ajoutée (stockage local) !", "success")
             return redirect(url_for("menu"))
         else:
-            flash("Format vidéo invalide.")
+            flash("Format vidéo invalide.", "danger")
+            return redirect(url_for("add_video"))
     return render_template("add_video.html")
 
-#page pdf
+# Ajouter PDF (admin)
 @app.route("/Admin/add_pdf", methods=["GET", "POST"])
 def add_pdf():
     if not session.get("is_admin"):
@@ -221,58 +284,130 @@ def add_pdf():
     if request.method == "POST":
         file = request.files.get("file")
         if file and allowed_file(file.filename, "pdf"):
-            filepath = os.path.join(UPLOAD_FOLDER, file.filename)
-            file.save(filepath)
-            flash("PDF ajouté !")
+            filename = unique_filename(file.filename)
+            if USE_S3:
+                try:
+                    upload_file_to_s3(file, filename, file.content_type)
+                    flash("PDF ajouté sur S3 !", "success")
+                except Exception:
+                    flash("Erreur upload PDF sur S3.", "danger")
+                    return redirect(url_for("add_pdf"))
+            else:
+                path = os.path.join(UPLOAD_FOLDER, filename)
+                file.save(path)
+                flash("PDF ajouté (stockage local) !", "success")
             return redirect(url_for("menu"))
         else:
-            flash("Format PDF invalide.")
+            flash("Format PDF invalide.", "danger")
+            return redirect(url_for("add_pdf"))
     return render_template("add_pdf.html")
 
-#admin qui supprime les videos et les pdfs
+# Suppression (admin)
 @app.route("/admin/delete", methods=["GET", "POST"])
 def delete_file():
     if not session.get("is_admin"):
         return redirect(url_for("logi"))
-
     if request.method == "POST":
         filename = request.form.get("filename")
-        if filename:
+        if not filename:
+            flash("Nom fichier manquant.", "warning")
+            return redirect(url_for("delete_file"))
+        if USE_S3:
+            # suppression sur S3
+            s3 = boto3.client(
+                "s3",
+                region_name=S3_REGION,
+                aws_access_key_id=os.environ.get("AWS_ACCESS_KEY_ID"),
+                aws_secret_access_key=os.environ.get("AWS_SECRET_ACCESS_KEY")
+            )
+            try:
+                s3.delete_object(Bucket=S3_BUCKET, Key=filename)
+                flash(f"{filename} supprimé de S3.", "success")
+            except Exception as e:
+                app.logger.error(f"S3 delete error: {e}")
+                flash("Erreur suppression sur S3.", "danger")
+        else:
             path = os.path.join(UPLOAD_FOLDER, filename)
             if os.path.exists(path):
                 os.remove(path)
-                flash(f"{filename} supprimé avec succès.")
+                flash(f"{filename} supprimé avec succès.", "success")
             else:
-                flash("Fichier introuvable.")
+                flash("Fichier introuvable.", "warning")
         return redirect(url_for("delete_file"))
 
-    # Si GET → on affiche la liste des fichiers
-    files = os.listdir(UPLOAD_FOLDER)
+    # GET -> lister les fichiers
+    if USE_S3:
+        # liste rudimentaire : on retourne uniquement clé S3 (nécessite pagination si beaucoup)
+        s3 = boto3.client(
+            "s3",
+            region_name=S3_REGION,
+            aws_access_key_id=os.environ.get("AWS_ACCESS_KEY_ID"),
+            aws_secret_access_key=os.environ.get("AWS_SECRET_ACCESS_KEY")
+        )
+        try:
+            resp = s3.list_objects_v2(Bucket=S3_BUCKET, MaxKeys=100)
+            files = [obj['Key'] for obj in resp.get('Contents', [])]
+        except Exception:
+            files = []
+    else:
+        files = os.listdir(UPLOAD_FOLDER)
     return render_template("delete.html", files=files)
 
-#VIDEOS PUBLIC
+# VIDEOS PUBLIC
 @app.route("/videos")
 def videos():
-    files = [f for f in os.listdir(UPLOAD_FOLDER) if f.split(".")[-1].lower() in VIDEO_EXT]
+    if USE_S3:
+        s3 = boto3.client(
+            "s3",
+            region_name=S3_REGION,
+            aws_access_key_id=os.environ.get("AWS_ACCESS_KEY_ID"),
+            aws_secret_access_key=os.environ.get("AWS_SECRET_ACCESS_KEY")
+        )
+        try:
+            resp = s3.list_objects_v2(Bucket=S3_BUCKET, MaxKeys=100)
+            files = [obj['Key'] for obj in resp.get('Contents', []) if obj['Key'].split(".")[-1].lower() in VIDEO_EXT]
+        except Exception:
+            files = []
+    else:
+        files = [f for f in os.listdir(UPLOAD_FOLDER) if f.split(".")[-1].lower() in VIDEO_EXT]
     return render_template("videos.html", files=files)
 
-#PDFS PUBLIC
+# PDFS PUBLIC
 @app.route("/pdfs")
 def pdfs():
-    files = [f for f in os.listdir(UPLOAD_FOLDER) if f.split(".")[-1].lower() in PDF_EXT]
+    if USE_S3:
+        s3 = boto3.client(
+            "s3",
+            region_name=S3_REGION,
+            aws_access_key_id=os.environ.get("AWS_ACCESS_KEY_ID"),
+            aws_secret_access_key=os.environ.get("AWS_SECRET_ACCESS_KEY")
+        )
+        try:
+            resp = s3.list_objects_v2(Bucket=S3_BUCKET, MaxKeys=100)
+            files = [obj['Key'] for obj in resp.get('Contents', []) if obj['Key'].split(".")[-1].lower() in PDF_EXT]
+        except Exception:
+            files = []
+    else:
+        files = [f for f in os.listdir(UPLOAD_FOLDER) if f.split(".")[-1].lower() in PDF_EXT]
     return render_template("pdfs.html", files=files)
 
-@app.route("/watch/<filename>")
+@app.route("/watch/<path:filename>")
 def watch_video(filename):
+    # si S3, ici tu pourrais générer un lien signé pour le streaming
     return render_template("watch_video.html", filename=filename)
 
-@app.route("/view_pdf/<filename>")
+@app.route("/view_pdf/<path:filename>")
 def view_pdf(filename):
     return render_template("view_pdf.html", filename=filename)
 
-@app.route("/uploads/path:filename")
+# servir les fichiers locaux
+@app.route("/uploads/<path:filename>")
 def uploaded_file(filename):
-    return send_from_directory(UPLOAD_FOLDER, filename)
+    if USE_S3:
+        # si S3, soit tu génères un lien signé, soit tu empêches l'accès direct
+        # pour l'instant on retourne 404 si on est en S3 (tu peux implémenter signed_url)
+        abort(404)
+    return send_from_directory(UPLOAD_FOLDER, filename, as_attachment=False)
 
 #Calendrier
 @app.route('/calendrier')
@@ -280,7 +415,6 @@ def calendrier():
     year = datetime.now().year
     month = datetime.now().month
     today = datetime.now().day
-
     cal = calendar.Calendar(firstweekday=0)
     weeks = cal.monthdayscalendar(year, month)
 
@@ -359,6 +493,5 @@ if __name__ == "__main__":
     app.run(debug=True)
     with app.app_context():
         db.create_all()
-    import os
     port = int(os.environ.get("PORT", 5000))
-    app.run(host='0.0.0.0', port=port)
+    app.run(host="0.0.0.0", port=port, debug=(os.environ.get("FLASK_DEBUG") == "1"))

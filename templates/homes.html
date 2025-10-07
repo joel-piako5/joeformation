@@ -7,10 +7,10 @@
     padding: 0;
     /* Suppression de l'image de fond */
     background-image: none;
-    
+
     /* Couleur propre et moderne */
     background-color: #e6f0ff; /* un bleu très clair et doux */
-    
+
     min-height: 100vh;
     font-family: 'Poppins', sans-serif;
     transition: background 0.3s ease, color 0.3s ease;
@@ -121,11 +121,12 @@
         <a href="{{ url_for('pdfs') }}" class="btn-action btn-pdfs">PDFs</a>
         <a href="{{ url_for('logi') }}" class="btn-action btn-admin">Seul l'administrateur</a>
         <a href="{{ url_for('dashboard') }}" class="btn-action btn-dashboard">Retour au bord</a>
-    </div>
-        <p>🎥 <strong>Vidéos de formation :</strong> Accédez à toutes vos vidéos éducatives pour apprendre à votre rythme. Chaque vidéo est conçue pour être courte, claire et pratique.</p>
-        <p>📄 <strong>Documents PDF :</strong> Téléchargez les supports de cours, exercices corrigés et fiches résumées en format PDF pour étudier hors ligne.</p>
-        <p>👨‍💻 <strong>Espace Administrateur :</strong> Ce bouton est réservé aux administrateurs. Il permet de gérer les utilisateurs, ajouter de nouvelles vidéos et organiser les contenus.</p>
-        <p>📢 <strong>Astuce :</strong> Si un contenu ne s'affiche pas correctement, actualisez la page ou vérifiez votre connexion.</p>
+
+
+        <p> <strong>Vidéos de formation :</strong> Accédez à toutes vos vidéos éducatives pour apprendre à votre rythme. Chaque vidéo est conçue pour être courte, claire et pratique.</p>
+        <p> <strong>Documents PDF :</strong> Téléchargez les supports de cours, exercices corrigés et fiches résumées en format PDF pour étudier hors ligne.</p>
+        <p> <strong>Espace Administrateur :</strong> Ce bouton est réservé aux administrateurs. Il permet de gérer les utilisateurs, ajouter de nouvelles vidéos et organiser les contenus.</p>
+        <p> <strong>Astuce :</strong> Si un contenu ne s'affiche pas correctement, actualisez la page ou vérifiez votre connexion.</p>
     </div>
 </div>
 <script>
@@ -150,6 +151,7 @@
     });
 </script>
 {% endblock %}
+
 
 
 

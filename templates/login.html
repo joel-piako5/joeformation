@@ -4,15 +4,15 @@
     <meta charset="UTF-8">
     <title>Connexion - Plateforme éducative</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    
+
     <style>
         body {
             margin: 0;
             padding: 0;
-            background-image: url("{{ url_for('static', filename='upload/1725946906233.jpg') }}");
+            background-image: url("{{ url_for('static', filename='upload/lpt.jpg') }}");
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
@@ -121,7 +121,7 @@
     <button id="theme-toggle" class="btn-theme">🌙</button>
 
     <h2>Connexion</h2>
-    
+
     {% with messages = get_flashed_messages() %}
       {% if messages %}
         <div class="alert alert-danger" role="alert">
@@ -129,7 +129,7 @@
         </div>
       {% endif %}
     {% endwith %}
-    
+
     <form method="POST" action="/login">
         <div class="mb-3">
             <label for="email" class="form-label">Adresse e-mail</label>
@@ -142,17 +142,21 @@
         <button type="submit" class="btn btn-primary w-100">Se connecter</button>
     </form>
 
-    <!-- Paragraphes explicatifs encadrés -->
-    <div class="info-text">
-      <p><strong>Connexion : Permet aux utilisateurs déjà inscrits d'accéder à leur espace personnel.</p>
-      <p><i class="fa-solid fa-user-shield"></i> La connexion protège vos informations et sécurise vos données.</p>
-      <p><i class="fa-solid fa-book-open-reader"></i> Accédez facilement à vos cours et ressources personnelles.</p>
-      <p><i class="fa-solid fa-chart-line"></i> Suivez vos progrès et bénéficiez d’une expérience personnalisée.</p>
-      <p><i class="fa-solid fa-lock"></i> Vos données restent confidentielles et ne seront jamais partagées.</p>
-      
-      <p class="text-center mt-3">
-        👤 Pas encore de compte ? <a href="/register">Créer un compte</a>
-      </p>
+  <!-- Paragraphes explicatifs -->
+    <p class="info-connexion">
+      <p> La connexion protège vos informations et sécurise vos données. Permet aux utilisateurs déjà inscrits d'accéder à leur espace personnel.</p>
+  <!-- Paragraphes explicatifs -->
+    <p class="info-connexion">
+      <p> Accédez facilement à vos cours et ressources personnelles.</p>
+  <!-- Paragraphes explicatifs -->
+    <p class="info-connexion">
+      <p> Suivez vos progrès et bénéficiez d’une expérience personnalisée.</p>
+  <!-- Paragraphes explicatifs -->
+    <p class="info-connexion">
+      <p> Vos données restent confidentielles et ne seront jamais partagées.</p>
+
+    <p class="info-connexion text-center">
+        👤 Pas encore de compte ? <a href="/register">Créer un compte</a> </p>
     </div>
 </div>
 

@@ -15,6 +15,7 @@ from datetime import datetime
 from questions import questions
 
 app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
 app.secret_key = 'joegoat532005mmaPK'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///etudiants.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -362,4 +363,5 @@ if __name__ == "__main__":
     import os
     port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port)
+
 

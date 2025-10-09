@@ -43,16 +43,16 @@ ADMIN_CODE = "joe2005"
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    nom = db.Column(db.String(100))
-    email = db.Column(db.String(100), unique=True)
-    password = db.Column(db.String(100))
+    nom = db.Column(db.String(255))
+    email = db.Column(db.String(255), unique=True)
+    password = db.Column(db.String(255))
     role = db.Column(db.String(10), default="etudiant")  # admin ou etudiant
 
 class Resultat(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    nom = db.Column(db.String(100))
-    matricule = db.Column(db.String(50))
-    matiere = db.Column(db.String(100))
+    nom = db.Column(db.String(255))
+    matricule = db.Column(db.String(100))
+    matiere = db.Column(db.String(200))
     note = db.Column(db.Float)
 
 # ------------------ ROUTES ------------------
@@ -327,6 +327,7 @@ if __name__ == "__main__":
         db.create_all()
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
+
 
 
 

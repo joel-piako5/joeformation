@@ -313,6 +313,13 @@ def quizz():
                 score += 1
         return render_template("result.html", score=score, total=len(questions))
     return render_template("quizz.html", questions=questions)
+    
+from models import db  # si ce n'est pas déjà importé
+
+@app.route('/init-db')
+def init_db():
+    db.create_all()
+    return "✅ Base de données initialisée !"
 
 # --- Lancement ---
 if __name__ == "__main__":
@@ -320,6 +327,7 @@ if __name__ == "__main__":
         db.create_all()
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
+
 
 
 

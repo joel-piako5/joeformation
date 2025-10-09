@@ -10,8 +10,10 @@ from flask import (
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 from questions import questions
-from your_app import db, app
+from models import db, User
 
+
+db.init_app(app)
 
 # --- Configuration de base ---
 app = Flask(__name__)
@@ -321,6 +323,7 @@ if __name__ == "__main__":
         db.create_all()
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
+
 
 
 

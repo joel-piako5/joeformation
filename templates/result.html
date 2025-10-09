@@ -194,11 +194,12 @@
 <script>
     {% if score == total %}
     // Créer l’audio de victoire
-    const audio = new Audio("{{ url_for('static', filename='sounds/victory.mp3') }}");
+    const audio = new Audio("{{ url_for('static', filename='images/Mess.mp3') }}");
     audio.volume = 0.5; // volume modéré
     audio.play();
     {% endif %}
 </script>
 </body>
 </html>
+
 

@@ -14,7 +14,7 @@
             padding: 20px;
             min-height: 100vh;
             font-family: 'Segoe UI', sans-serif;
-            background-image: url("{{ url_for('static', filename='images/froid.jpg') }}");
+            background-image: url("{{ url_for('static', filename='images/rep.jpg') }}");
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
@@ -154,6 +154,7 @@
     <div>
         <a href="{{ url_for('quizz') }}" class="btn btn-success btn-lg btn-custom">🔄 Rejouer</a>
         <a href="{{ url_for('page') }}" class="btn btn-outline-primary btn-lg btn-custom">🏠 Retour Accueil</a>
+        <a href="{{ url_for('dashboard') }}" class="btn btn-outline-primary btn-lg btn-custom">🏠 Retour au bord </a>
     </div>
 </div>
 
@@ -201,5 +202,6 @@
 </script>
 </body>
 </html>
+
 
 

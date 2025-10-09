@@ -56,10 +56,6 @@ class Resultat(db.Model):
     note = db.Column(db.Float)
 
 # ------------------ ROUTES ------------------
-@app.before_first_request
-def create_tables():
-    db.create_all()
-    
 @app.route("/")
 def index():
     return render_template("index.html")
@@ -325,6 +321,7 @@ if __name__ == "__main__":
         db.create_all()
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
+
 
 
 

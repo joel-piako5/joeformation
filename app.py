@@ -1,6 +1,6 @@
 import os
 import calendar
-from datetime import date, datetime
+from datetime import datetime
 from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask import (
@@ -8,26 +8,22 @@ from flask import (
     session, flash, send_from_directory, abort
 )
 from flask_sqlalchemy import SQLAlchemy
-from flask_bcrypt import Bcrypt
-from questions import questions
-from models import db  # à importer en haut si ce n’est pas déjà fait
-
+# from flask_bcrypt import Bcrypt   # supprimé : on utilise werkzeug pour hasher
 
 # --- Configuration de base ---
-app = Flask(__name__)
-app.secret_key = 'joegoat532005mmaPK'
+app = Flask(_name_)
+app.secret_key = os.environ.get("SECRET_KEY", "joegoat532005mmaPK")
 
 # --- Configuration base de données ---
-# Si Render fournit DATABASE_URL → PostgreSQL
-# Sinon (local) → SQLite
 database_url = os.environ.get("DATABASE_URL", "sqlite:///etudiants.db")
-if database_url.startswith("postgres://"):
+# Render fournit parfois "postgres://..." (déprécié), on le convertit :
+if database_url and database_url.startswith("postgres://"):
     database_url = database_url.replace("postgres://", "postgresql://", 1)
 app.config["SQLALCHEMY_DATABASE_URI"] = database_url
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db = SQLAlchemy(app)
-bcrypt = Bcrypt(app)
+# bcrypt = Bcrypt(app)  # non utilisé
 
 # --- Configuration des fichiers upload ---
 UPLOAD_FOLDER = "uploads"
@@ -36,17 +32,17 @@ VIDEO_EXT = {"mp4", "webm", "ogg"}
 PDF_EXT = {"pdf"}
 
 # --- Informations administrateur ---
-ADMIN_EMAIL = "joe@mail.mma"
-ADMIN_CODE = "joe2005"
+ADMIN_EMAIL = os.environ.get("ADMIN_EMAIL", "joe@mail.mma")
+ADMIN_CODE = os.environ.get("ADMIN_CODE", "joe2005")
 
 # ------------------ MODELES ------------------
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nom = db.Column(db.String(255))
-    email = db.Column(db.String(255), unique=True)
+    email = db.Column(db.String(255), unique=True, index=True)
     password = db.Column(db.String(255))
-    role = db.Column(db.String(10), default="etudiant")  # admin ou etudiant
+    role = db.Column(db.String(50), default="etudiant")  # admin ou etudiant
 
 class Resultat(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -56,6 +52,7 @@ class Resultat(db.Model):
     note = db.Column(db.Float)
 
 # ------------------ ROUTES ------------------
+
 @app.route("/")
 def index():
     return render_template("index.html")
@@ -83,16 +80,20 @@ def profile():
 @app.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "POST":
-        nom = request.form["nom"]
-        email = request.form["email"]
-        password = request.form["password"]
+        nom = request.form.get("nom", "").strip()
+        email = request.form.get("email", "").strip().lower()
+        password = request.form.get("password", "")
+
+        if not email or not password:
+            flash("Email et mot de passe requis.", "warning")
+            return redirect(url_for("register"))
 
         # Vérifie si email déjà utilisé
         if User.query.filter_by(email=email).first():
-            flash("⚠️ Cet email est déjà utilisé.", "warning")
+            flash("⚠ Cet email est déjà utilisé.", "warning")
             return redirect(url_for("register"))
 
-        hashed_pw = generate_password_hash(password)
+        hashed_pw = generate_password_hash(password)  # Werkzeug
         user = User(nom=nom, email=email, password=hashed_pw)
         db.session.add(user)
         db.session.commit()
@@ -104,8 +105,8 @@ def register():
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
-        email = request.form["email"]
-        password = request.form["password"]
+        email = request.form.get("email", "").strip().lower()
+        password = request.form.get("password", "")
         user = User.query.filter_by(email=email).first()
 
         if user and check_password_hash(user.password, password):
@@ -170,7 +171,7 @@ def logi():
         code = request.form.get("code")
         if email == ADMIN_EMAIL and code == ADMIN_CODE:
             session["is_admin"] = True
-            flash("Bienvenue administrateur Joel !")
+            flash("Bienvenue administrateur !")
             return redirect(url_for("menu"))
         else:
             flash("Identifiants incorrects.")
@@ -191,8 +192,10 @@ def menu():
 
 # --- Ajout fichiers ---
 def allowed_file(filename, filetype):
-    ext = filename.rsplit(".", 1)[-1].lower()
-    return ext in (VIDEO_EXT if filetype == "video" else PDF_EXT)
+    if not filename or "." not in filename:
+        return False
+    ext = filename.rsplit(".", 1)[1].lower()
+    return (ext in VIDEO_EXT) if filetype == "video" else (ext in PDF_EXT)
 
 @app.route("/Admin/add_video", methods=["GET", "POST"])
 def add_video():
@@ -201,7 +204,8 @@ def add_video():
     if request.method == "POST":
         file = request.files.get("file")
         if file and allowed_file(file.filename, "video"):
-            filepath = os.path.join(UPLOAD_FOLDER, secure_filename(file.filename))
+            safe_name = secure_filename(file.filename)
+            filepath = os.path.join(UPLOAD_FOLDER, safe_name)
             file.save(filepath)
             flash("Vidéo ajoutée !")
             return redirect(url_for("menu"))
@@ -216,7 +220,8 @@ def add_pdf():
     if request.method == "POST":
         file = request.files.get("file")
         if file and allowed_file(file.filename, "pdf"):
-            filepath = os.path.join(UPLOAD_FOLDER, secure_filename(file.filename))
+            safe_name = secure_filename(file.filename)
+            filepath = os.path.join(UPLOAD_FOLDER, safe_name)
             file.save(filepath)
             flash("PDF ajouté !")
             return redirect(url_for("menu"))
@@ -304,37 +309,34 @@ def quiz():
 def page():
     return render_template("page.html")
 
+# Remarque : 'questions' importé depuis un module 'questions' si tu l'as
+try:
+    from questions import questions as external_questions
+except Exception:
+    external_questions = []
+
 @app.route("/quizz", methods=["GET", "POST"])
 def quizz():
     if request.method == "POST":
+        questions_list = external_questions or []
         score = 0
-        for q in questions:
+        for q in questions_list:
             user_answer = request.form.get(str(q["id"]))
             if user_answer == q["answer"]:
                 score += 1
-        return render_template("result.html", score=score, total=len(questions))
-    return render_template("quizz.html", questions=questions)
+        return render_template("result.html", score=score, total=len(questions_list))
+    return render_template("quizz.html", questions=external_questions)
 
 @app.route('/init-db')
 def init_db():
+    # Dev only. Supprime ou protége cette route en production.
     db.create_all()
     return "✅ Base de données initialisée !"
 
-
 # --- Lancement ---
-if __name__ == "__main__":
+if _name_ == "_main_":
+    # création tables si nécessaire
     with app.app_context():
         db.create_all()
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
-
-
-
-
-
-
-
-
-
-
-

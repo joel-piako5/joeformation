@@ -76,7 +76,7 @@ def histoire():
 def profile():
     return render_template("profile.html")
 
-# --- Inscription ---
+
 @app.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "POST":
@@ -93,10 +93,13 @@ def register():
             flash("⚠ Cet email est déjà utilisé.", "warning")
             return redirect(url_for("register"))
 
-        hashed_pw = generate_password_hash(password).decode('utf-8')  # Werkzeug
+        # 🔥 Correction ici :
+        hashed_pw = generate_password_hash(password).decode('utf-8')
+
         user = User(nom=nom, email=email, password=hashed_pw)
         db.session.add(user)
         db.session.commit()
+
         flash("✅ Compte créé avec succès.", "success")
         return redirect(url_for("login"))
     return render_template("register.html")
@@ -335,6 +338,7 @@ if __name__ == "__main__":
         db.create_all()
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
+
 
 
 

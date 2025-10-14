@@ -93,7 +93,7 @@ def register():
             flash("⚠ Cet email est déjà utilisé.", "warning")
             return redirect(url_for("register"))
 
-        hashed_pw = generate_password_hash(password)  # Werkzeug
+        hashed_pw = generate_password_hash(password).decode('utf-8')  # Werkzeug
         user = User(nom=nom, email=email, password=hashed_pw)
         db.session.add(user)
         db.session.commit()
@@ -335,6 +335,7 @@ if __name__ == "__main__":
         db.create_all()
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
+
 
 
 

@@ -327,11 +327,6 @@ def quizz():
         return render_template("result.html", score=score, total=len(questions_list))
     return render_template("quizz.html", questions=external_questions)
 
-@app.route('/init-db')
-def init_db():
-    # Dev only. Supprime ou protége cette route en production.
-    db.create_all()
-    return "✅ Base de données initialisée !"
 
 # --- Lancement ---
 if __name__ == "__main__":
@@ -340,6 +335,7 @@ if __name__ == "__main__":
         db.create_all()
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
+
 
 
 

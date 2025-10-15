@@ -23,8 +23,18 @@ app.config["SQLALCHEMY_DATABASE_URI"] = database_url
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db = SQLAlchemy(app)
-# bcrypt = Bcrypt(app)  # non utilisé
 
+# bcrypt = Bcrypt(app)  # non utilisé
+from sqlalchemy import text
+
+with app.app_context():
+    try:
+        db.session.execute(text("ALTER TABLE utilisateur ALTER COLUMN mot_de_passe TYPE VARCHAR(255);"))
+        db.session.commit()
+        print("✅ Colonne mot_de_passe mise à jour en VARCHAR(255)")
+    except Exception as e:
+        print("ℹ️ Modification déjà appliquée ou erreur bénigne :", e)
+        
 # --- Configuration des fichiers upload ---
 UPLOAD_FOLDER = "uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
@@ -338,6 +348,7 @@ if __name__ == "__main__":
         db.create_all()
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
+
 
 
 

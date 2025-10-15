@@ -94,7 +94,7 @@ def register():
             return redirect(url_for("register"))
 
         # 🔥 Correction ici :
-        hashed_pw = generate_password_hash(password).decode('utf-8')
+        hashed_pw = generate_password_hash(password)
 
         user = User(nom=nom, email=email, password=hashed_pw)
         db.session.add(user)
@@ -338,6 +338,7 @@ if __name__ == "__main__":
         db.create_all()
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
+
 
 
 

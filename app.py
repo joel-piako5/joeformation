@@ -118,8 +118,8 @@ def register():
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
-        email = request.form.get("email", "").strip().lower()
-        password = request.form.get("password", "")
+        email = request.form["email"].strip().lower()
+        password = request.form["password"]
         user = User.query.filter_by(email=email).first()
 
         if user and check_password_hash(user.password, password):
@@ -127,10 +127,7 @@ def login():
             session["user_nom"] = user.nom
             session["user_role"] = user.role
             flash("Connexion réussie.", "success")
-            if user.role == "etudiant":
-                return redirect(url_for("quiz"))
-            else:
-                return redirect(url_for("menu"))
+            return redirect(url_for("quiz")) if user.role == "étudiant" else redirect(url_for("index"))
         else:
             flash("Identifiants incorrects.", "danger")
     return render_template("login.html")
@@ -348,6 +345,7 @@ if __name__ == "__main__":
         db.create_all()
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
+
 
 
 

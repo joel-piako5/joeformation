@@ -339,6 +339,10 @@ quiz_questions = [
      "choices": ["Git", "SVN", "Mercurial", "Dropbox"], "answer": "Git"},
 ]
 
+@app.route("/page")
+def page():
+    return render_template("page.html")
+    
 @app.route("/quiz", methods=["GET", "POST"])
 def quiz():
     if "user_id" not in session:
@@ -353,8 +357,21 @@ def quiz():
     return render_template("quiz.html", questions=quiz_questions)
 
 
+@app.route("/quizz", methods=["GET", "POST"])
+def quizz():
+    if request.method == "POST":
+        questions_list = external_questions or []
+        score = 0
+        for q in questions_list:
+            user_answer = request.form.get(str(q["id"]))
+            if user_answer == q["answer"]:
+                score += 1
+        return render_template("result.html", score=score, total=len(questions_list))
+    return render_template("quizz.html", questions=external_questions)
+
 if __name__ == "__main__":
     init_db()
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=True)
+
 

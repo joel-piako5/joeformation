@@ -1,43 +1,51 @@
 import os
 import calendar
+import sqlite3
 from datetime import datetime
 from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask import (
     Flask, render_template, request, redirect, url_for,
-    session, flash, send_from_directory, abort
+    session, flash, send_from_directory
 )
-from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import text
 
 # --- Configuration de base ---
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "joegoat532005mmaPK")
 
-# --- Configuration base de données ---
-database_url = os.environ.get("DATABASE_URL", "sqlite:///etudiants.db")
-if database_url and database_url.startswith("postgres://"):
-    database_url = database_url.replace("postgres://", "postgresql://", 1)
-app.config["SQLALCHEMY_DATABASE_URI"] = database_url
-app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+# --- Base de données SQLite locale ---
+DB_PATH = "etudiants.db"
 
-db = SQLAlchemy(app)
-# --- Création automatique des tables si elles n'existent pas ---
-from sqlalchemy import inspect
+def init_db():
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
 
-with app.app_context():
-    inspector = inspect(db.engine)
-    if not inspector.has_table("utilisateur"):
-        db.create_all()
-        print("✅ Tables créées automatiquement.")
-# --- Mise à jour colonne mot_de_passe (si besoin) ---
-with app.app_context():
-    try:
-        db.session.execute(text("ALTER TABLE utilisateur ALTER COLUMN mot_de_passe TYPE VARCHAR(255);"))
-        db.session.commit()
-        print("✅ Colonne mot_de_passe mise à jour en VARCHAR(255)")
-    except Exception as e:
-        print("ℹ Modification déjà appliquée ou erreur bénigne :", e)
+    # Table utilisateur
+    c.execute("""
+        CREATE TABLE IF NOT EXISTS utilisateur (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            nom TEXT,
+            email TEXT UNIQUE,
+            password TEXT,
+            role TEXT DEFAULT 'etudiant'
+        )
+    """)
+
+    # Table résultats
+    c.execute("""
+        CREATE TABLE IF NOT EXISTS resultat (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            nom TEXT,
+            matricule TEXT,
+            matiere TEXT,
+            note REAL
+        )
+    """)
+
+    conn.commit()
+    conn.close()
+
+init_db()
 
 # --- Dossiers upload ---
 UPLOAD_FOLDER = "uploads"
@@ -50,30 +58,15 @@ ADMIN_EMAIL = os.environ.get("ADMIN_EMAIL", "joe@mail.mma")
 ADMIN_CODE = os.environ.get("ADMIN_CODE", "joe2005")
 
 
-# ------------------ MODELES ------------------
-
-class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    nom = db.Column(db.String(255))
-    email = db.Column(db.String(255), unique=True, index=True)
-    password = db.Column(db.String(255))
-    role = db.Column(db.String(50), default="etudiant")
-
-
-class Resultat(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    nom = db.Column(db.String(255))
-    matricule = db.Column(db.String(100))
-    matiere = db.Column(db.String(200))
-    note = db.Column(db.Float)
-
-
-# ------------------ ROUTES ------------------
+# ------------------ PAGES PUBLIQUES ------------------
 
 @app.route("/")
 def index():
     return render_template("index.html")
 
+@app.route("/homes")
+def homes():
+    return render_template("homes.html")
 
 @app.route("/contact", methods=["GET", "POST"])
 def contact():
@@ -86,11 +79,9 @@ def contact():
         return redirect(url_for("contact"))
     return render_template("contact.html")
 
-
 @app.route("/histoire")
 def histoire():
     return render_template("histoire.html")
-
 
 @app.route("/profile")
 def profile():
@@ -110,17 +101,18 @@ def register():
             flash("Email et mot de passe requis.", "warning")
             return redirect(url_for("register"))
 
-        if User.query.filter_by(email=email).first():
-            flash("⚠ Cet email est déjà utilisé.", "warning")
-            return redirect(url_for("register"))
-
-        # ✅ Hash du mot de passe
         hashed_pw = generate_password_hash(password)
-        user = User(nom=nom, email=email, password=hashed_pw)
-        db.session.add(user)
-        db.session.commit()
+        try:
+            conn = sqlite3.connect(DB_PATH)
+            c = conn.cursor()
+            c.execute("INSERT INTO utilisateur (nom, email, password) VALUES (?, ?, ?)", (nom, email, hashed_pw))
+            conn.commit()
+            flash("✅ Compte créé avec succès.", "success")
+        except sqlite3.IntegrityError:
+            flash("⚠ Cet email est déjà utilisé.", "warning")
+        finally:
+            conn.close()
 
-        flash("✅ Compte créé avec succès.", "success")
         return redirect(url_for("login"))
     return render_template("register.html")
 
@@ -132,22 +124,22 @@ def login():
     if request.method == "POST":
         email = request.form["email"].strip().lower()
         password = request.form["password"]
-        user = User.query.filter_by(email=email).first()
 
-        if user and check_password_hash(user.password, password):
-            session["user_id"] = user.id
-            session["user_nom"] = user.nom
-            session["user_role"] = user.role
+        conn = sqlite3.connect(DB_PATH)
+        c = conn.cursor()
+        c.execute("SELECT id, nom, password, role FROM utilisateur WHERE email=?", (email,))
+        user = c.fetchone()
+        conn.close()
+
+        if user and check_password_hash(user[2], password):
+            session["user_id"] = user[0]
+            session["user_nom"] = user[1]
+            session["user_role"] = user[3]
             flash("Connexion réussie.", "success")
-            return redirect(url_for("quiz")) if user.role == "etudiant" else redirect(url_for("index"))
+            return redirect(url_for("quiz")) if user[3] == "etudiant" else redirect(url_for("index"))
         else:
             flash("Identifiants incorrects.", "danger")
     return render_template("login.html")
-
-
-@app.route("/dashboard")
-def dashboard():
-    return render_template("dashboard.html")
 
 
 @app.route("/logout")
@@ -155,6 +147,11 @@ def logout():
     session.clear()
     flash("Déconnexion réussie.", "info")
     return redirect(url_for("login"))
+
+
+@app.route("/dashboard")
+def dashboard():
+    return render_template("dashboard.html")
 
 
 # ------------------ LISTE MATIERES ------------------
@@ -190,7 +187,11 @@ def resultats():
 def liste_etudiants():
     if "user_id" not in session:
         return redirect(url_for("logi"))
-    users = User.query.all()
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+    c.execute("SELECT id, nom, email, role FROM utilisateur")
+    users = c.fetchall()
+    conn.close()
     return render_template("liste_etudiants.html", users=users)
 
 
@@ -286,34 +287,25 @@ def delete_file():
     return render_template("delete.html", files=files)
 
 
-# ------------------ PAGES PUBLIQUES ------------------
-
-@app.route("/homes")
-def homes():
-    return render_template("homes.html")
-
+# ------------------ VIDEOS / PDF ------------------
 
 @app.route("/videos")
 def videos():
     files = [f for f in os.listdir(UPLOAD_FOLDER) if f.split(".")[-1].lower() in VIDEO_EXT]
     return render_template("videos.html", files=files)
 
-
 @app.route("/pdfs")
 def pdfs():
     files = [f for f in os.listdir(UPLOAD_FOLDER) if f.split(".")[-1].lower() in PDF_EXT]
     return render_template("page.html", files=files)
 
-
 @app.route("/watch/<filename>")
 def watch_video(filename):
     return render_template("watch_video.html", filename=filename)
 
-
 @app.route("/view_pdf/<filename>")
 def view_pdf(filename):
     return render_template("view_pdf.html", filename=filename)
-
 
 @app.route("/uploads/<path:filename>")
 def uploaded_file(filename):
@@ -347,7 +339,6 @@ quiz_questions = [
      "choices": ["Git", "SVN", "Mercurial", "Dropbox"], "answer": "Git"},
 ]
 
-
 @app.route("/quiz", methods=["GET", "POST"])
 def quiz():
     if "user_id" not in session:
@@ -362,36 +353,7 @@ def quiz():
     return render_template("quiz.html", questions=quiz_questions)
 
 
-@app.route("/page")
-def page():
-    return render_template("page.html")
-
-
-try:
-    from questions import questions as external_questions
-except Exception:
-    external_questions = []
-
-
-@app.route("/quizz", methods=["GET", "POST"])
-def quizz():
-    if request.method == "POST":
-        questions_list = external_questions or []
-        score = 0
-        for q in questions_list:
-            user_answer = request.form.get(str(q["id"]))
-            if user_answer == q["answer"]:
-                score += 1
-        return render_template("result.html", score=score, total=len(questions_list))
-    return render_template("quizz.html", questions=external_questions)
-
-
-# ------------------ LANCEMENT ------------------
-
 if __name__ == "__main__":
-    with app.app_context():
-        db.create_all()
+    init_db()
     port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
-
-
+    app.run(host="0.0.0.0", port=port, debug=True)

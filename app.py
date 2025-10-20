@@ -22,7 +22,14 @@ app.config["SQLALCHEMY_DATABASE_URI"] = database_url
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db = SQLAlchemy(app)
+# --- Création automatique des tables si elles n'existent pas ---
+from sqlalchemy import inspect
 
+with app.app_context():
+    inspector = inspect(db.engine)
+    if not inspector.has_table("utilisateur"):
+        db.create_all()
+        print("✅ Tables créées automatiquement.")
 # --- Mise à jour colonne mot_de_passe (si besoin) ---
 with app.app_context():
     try:
@@ -386,4 +393,5 @@ if __name__ == "__main__":
         db.create_all()
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
+
 

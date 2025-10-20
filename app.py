@@ -8,15 +8,14 @@ from flask import (
     session, flash, send_from_directory, abort
 )
 from flask_sqlalchemy import SQLAlchemy
-# from flask_bcrypt import Bcrypt   # supprimé : on utilise werkzeug pour hasher
+from sqlalchemy import text
 
 # --- Configuration de base ---
-app = Flask(__name__)
+app = Flask(_name_)
 app.secret_key = os.environ.get("SECRET_KEY", "joegoat532005mmaPK")
 
 # --- Configuration base de données ---
 database_url = os.environ.get("DATABASE_URL", "sqlite:///etudiants.db")
-# Render fournit parfois "postgres://..." (déprécié), on le convertit :
 if database_url and database_url.startswith("postgres://"):
     database_url = database_url.replace("postgres://", "postgresql://", 1)
 app.config["SQLALCHEMY_DATABASE_URI"] = database_url
@@ -24,18 +23,16 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db = SQLAlchemy(app)
 
-# bcrypt = Bcrypt(app)  # non utilisé
-from sqlalchemy import text
-
+# --- Mise à jour colonne mot_de_passe (si besoin) ---
 with app.app_context():
     try:
         db.session.execute(text("ALTER TABLE utilisateur ALTER COLUMN mot_de_passe TYPE VARCHAR(255);"))
         db.session.commit()
         print("✅ Colonne mot_de_passe mise à jour en VARCHAR(255)")
     except Exception as e:
-        print("ℹ️ Modification déjà appliquée ou erreur bénigne :", e)
-        
-# --- Configuration des fichiers upload ---
+        print("ℹ Modification déjà appliquée ou erreur bénigne :", e)
+
+# --- Dossiers upload ---
 UPLOAD_FOLDER = "uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 VIDEO_EXT = {"mp4", "webm", "ogg"}
@@ -45,6 +42,7 @@ PDF_EXT = {"pdf"}
 ADMIN_EMAIL = os.environ.get("ADMIN_EMAIL", "joe@mail.mma")
 ADMIN_CODE = os.environ.get("ADMIN_CODE", "joe2005")
 
+
 # ------------------ MODELES ------------------
 
 class User(db.Model):
@@ -52,7 +50,8 @@ class User(db.Model):
     nom = db.Column(db.String(255))
     email = db.Column(db.String(255), unique=True, index=True)
     password = db.Column(db.String(255))
-    role = db.Column(db.String(50), default="etudiant")  # admin ou etudiant
+    role = db.Column(db.String(50), default="etudiant")
+
 
 class Resultat(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -61,11 +60,13 @@ class Resultat(db.Model):
     matiere = db.Column(db.String(200))
     note = db.Column(db.Float)
 
+
 # ------------------ ROUTES ------------------
 
 @app.route("/")
 def index():
     return render_template("index.html")
+
 
 @app.route("/contact", methods=["GET", "POST"])
 def contact():
@@ -78,14 +79,18 @@ def contact():
         return redirect(url_for("contact"))
     return render_template("contact.html")
 
+
 @app.route("/histoire")
 def histoire():
     return render_template("histoire.html")
+
 
 @app.route("/profile")
 def profile():
     return render_template("profile.html")
 
+
+# ------------------ INSCRIPTION ------------------
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
@@ -98,15 +103,13 @@ def register():
             flash("Email et mot de passe requis.", "warning")
             return redirect(url_for("register"))
 
-        # Vérifie si email déjà utilisé
         if User.query.filter_by(email=email).first():
             flash("⚠ Cet email est déjà utilisé.", "warning")
             return redirect(url_for("register"))
 
-        # 🔥 Correction ici :
+        # ✅ Hash du mot de passe
         hashed_pw = generate_password_hash(password)
-
-        user = User(nom=nom, email=email, password=password)
+        user = User(nom=nom, email=email, password=hashed_pw)
         db.session.add(user)
         db.session.commit()
 
@@ -114,7 +117,9 @@ def register():
         return redirect(url_for("login"))
     return render_template("register.html")
 
-# --- Connexion utilisateur ---
+
+# ------------------ CONNEXION ------------------
+
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
@@ -127,20 +132,25 @@ def login():
             session["user_nom"] = user.nom
             session["user_role"] = user.role
             flash("Connexion réussie.", "success")
-            return redirect(url_for("quiz")) if user.role == "étudiant" else redirect(url_for("index"))
+            return redirect(url_for("quiz")) if user.role == "etudiant" else redirect(url_for("index"))
         else:
             flash("Identifiants incorrects.", "danger")
     return render_template("login.html")
 
+
 @app.route("/dashboard")
 def dashboard():
     return render_template("dashboard.html")
+
 
 @app.route("/logout")
 def logout():
     session.clear()
     flash("Déconnexion réussie.", "info")
     return redirect(url_for("login"))
+
+
+# ------------------ LISTE MATIERES ------------------
 
 @app.route("/liste_matieres")
 def liste_matieres():
@@ -161,16 +171,21 @@ def liste_matieres():
     ]
     return render_template("liste_matieres.html", matieres=matieres)
 
+
 @app.route("/resultats")
 def resultats():
     return render_template("resultats.html")
+
+
+# ------------------ LISTE DES ÉTUDIANTS ------------------
 
 @app.route("/etudiants")
 def liste_etudiants():
     if "user_id" not in session:
         return redirect(url_for("logi"))
     users = User.query.all()
-    return render_template("liste_etudiants.html")
+    return render_template("liste_etudiants.html", users=users)
+
 
 # ------------------ ADMIN ------------------
 
@@ -187,11 +202,13 @@ def logi():
             flash("Identifiants incorrects.")
     return render_template("logi.html")
 
+
 @app.route("/logo")
 def logo():
     session.pop("is_admin", None)
     flash("Déconnecté.")
     return redirect(url_for("homes"))
+
 
 @app.route("/menu")
 def menu():
@@ -200,12 +217,15 @@ def menu():
         return redirect(url_for("logi"))
     return render_template("menu.html")
 
-# --- Ajout fichiers ---
+
+# ------------------ GESTION FICHIERS ------------------
+
 def allowed_file(filename, filetype):
     if not filename or "." not in filename:
         return False
     ext = filename.rsplit(".", 1)[1].lower()
     return (ext in VIDEO_EXT) if filetype == "video" else (ext in PDF_EXT)
+
 
 @app.route("/Admin/add_video", methods=["GET", "POST"])
 def add_video():
@@ -223,6 +243,7 @@ def add_video():
             flash("Format vidéo invalide.")
     return render_template("add_video.html")
 
+
 @app.route("/Admin/add_pdf", methods=["GET", "POST"])
 def add_pdf():
     if not session.get("is_admin"):
@@ -238,6 +259,7 @@ def add_pdf():
         else:
             flash("Format PDF invalide.")
     return render_template("add_pdf.html")
+
 
 @app.route("/admin/delete", methods=["GET", "POST"])
 def delete_file():
@@ -256,34 +278,43 @@ def delete_file():
     files = os.listdir(UPLOAD_FOLDER)
     return render_template("delete.html", files=files)
 
-# --- Pages publiques ---
+
+# ------------------ PAGES PUBLIQUES ------------------
+
 @app.route("/homes")
 def homes():
     return render_template("homes.html")
+
 
 @app.route("/videos")
 def videos():
     files = [f for f in os.listdir(UPLOAD_FOLDER) if f.split(".")[-1].lower() in VIDEO_EXT]
     return render_template("videos.html", files=files)
 
+
 @app.route("/pdfs")
 def pdfs():
     files = [f for f in os.listdir(UPLOAD_FOLDER) if f.split(".")[-1].lower() in PDF_EXT]
-    return render_template("pdfs.html", files=files)
+    return render_template("page.html", files=files)
+
 
 @app.route("/watch/<filename>")
 def watch_video(filename):
     return render_template("watch_video.html", filename=filename)
 
+
 @app.route("/view_pdf/<filename>")
 def view_pdf(filename):
     return render_template("view_pdf.html", filename=filename)
+
 
 @app.route("/uploads/<path:filename>")
 def uploaded_file(filename):
     return send_from_directory(UPLOAD_FOLDER, filename)
 
-# --- Calendrier ---
+
+# ------------------ CALENDRIER ------------------
+
 @app.route("/calendrier")
 def calendrier():
     year = datetime.now().year
@@ -293,14 +324,22 @@ def calendrier():
     weeks = cal.monthdayscalendar(year, month)
     return render_template("calendrier.html", weeks=weeks, year=year, month=month, today=today)
 
-# --- Quiz ---
+
+# ------------------ QUIZ ------------------
+
 quiz_questions = [
-    {"id": 1, "question": "Quel langage est utilisé pour le développement web côté serveur ?", "choices": ["HTML", "Python", "CSS", "Photoshop"], "answer": "Python"},
-    {"id": 2, "question": "Quel protocole est utilisé pour naviguer sur le web ?", "choices": ["FTP", "HTTP", "SMTP", "SSH"], "answer": "HTTP"},
-    {"id": 3, "question": "Quelle balise HTML est utilisée pour insérer une image ?", "choices": ["<div>", "<img>", "<link>", "<span>"], "answer": "<img>"},
-    {"id": 4, "question": "Quel est le langage utilisé pour styliser une page web ?", "choices": ["Python", "CSS", "SQL", "PHP"], "answer": "CSS"},
-    {"id": 5, "question": "Quel est le système de gestion de version le plus utilisé ?", "choices": ["Git", "SVN", "Mercurial", "Dropbox"], "answer": "Git"},
+    {"id": 1, "question": "Quel langage est utilisé pour le développement web côté serveur ?",
+     "choices": ["HTML", "Python", "CSS", "Photoshop"], "answer": "Python"},
+    {"id": 2, "question": "Quel protocole est utilisé pour naviguer sur le web ?",
+     "choices": ["FTP", "HTTP", "SMTP", "SSH"], "answer": "HTTP"},
+    {"id": 3, "question": "Quelle balise HTML est utilisée pour insérer une image ?",
+     "choices": ["<div>", "<img>", "<link>", "<span>"], "answer": "<img>"},
+    {"id": 4, "question": "Quel est le langage utilisé pour styliser une page web ?",
+     "choices": ["Python", "CSS", "SQL", "PHP"], "answer": "CSS"},
+    {"id": 5, "question": "Quel est le système de gestion de version le plus utilisé ?",
+     "choices": ["Git", "SVN", "Mercurial", "Dropbox"], "answer": "Git"},
 ]
+
 
 @app.route("/quiz", methods=["GET", "POST"])
 def quiz():
@@ -315,15 +354,17 @@ def quiz():
         return render_template("resul.html", score=score, total=len(quiz_questions))
     return render_template("quiz.html", questions=quiz_questions)
 
+
 @app.route("/page")
 def page():
     return render_template("page.html")
 
-# Remarque : 'questions' importé depuis un module 'questions' si tu l'as
+
 try:
     from questions import questions as external_questions
 except Exception:
     external_questions = []
+
 
 @app.route("/quizz", methods=["GET", "POST"])
 def quizz():
@@ -338,22 +379,10 @@ def quizz():
     return render_template("quizz.html", questions=external_questions)
 
 
-# --- Lancement ---
-if __name__ == "__main__":
-    # création tables si nécessaire
+# ------------------ LANCEMENT ------------------
+
+if _name_ == "_main_":
     with app.app_context():
         db.create_all()
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
-
-
-
-
-
-
-
-
-
-
-
-

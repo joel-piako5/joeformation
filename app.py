@@ -297,7 +297,7 @@ def videos():
 @app.route("/pdfs")
 def pdfs():
     files = [f for f in os.listdir(UPLOAD_FOLDER) if f.split(".")[-1].lower() in PDF_EXT]
-    return render_template("page.html", files=files)
+    return render_template("pdfs.html", files=files)
 
 @app.route("/watch/<filename>")
 def watch_video(filename):
@@ -357,3 +357,4 @@ if __name__ == "__main__":
     init_db()
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=True)
+

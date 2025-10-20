@@ -5,6 +5,7 @@
     <title>Liste des Utilisateurs</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+    <!-- Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
     <style>
@@ -71,6 +72,7 @@
 </head>
 <body>
 
+<!-- Bouton mode sombre/clair -->
 <div class="btn-toggle">
     <button id="modeBtn" class="btn btn-outline-dark btn-sm">🌙 Mode sombre</button>
 </div>
@@ -78,22 +80,28 @@
 <div class="container">
     <h2 class="mb-4 text-center">📋 Liste des utilisateurs inscrits</h2>
 
-    {% for etudiant in etudiants %}
-    <div class="user-card">
-        <h5>{{ etudiant.nom }} (ID: {{ etudiant.id }})</h5>
-        <p><strong>Email :</strong> {{ etudiant.email }}</p>
-        <p><strong>Rôle :</strong> {{ etudiant.role }}</p>
-    </div>
-    {% endfor %}
+    <!-- Boucle correcte (Flask envoie "users", pas "etudiants") -->
+    {% if users %}
+        {% for user in users %}
+        <div class="user-card">
+            <h5>{{ user.nom }} <small class="text-muted">(ID: {{ user.id }})</small></h5>
+            <p><strong>Email :</strong> {{ user.email }}</p>
+            <p><strong>Rôle :</strong> {{ user.role }}</p>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="alert alert-info text-center">Aucun utilisateur inscrit pour le moment.</div>
+    {% endif %}
 
     <a href="{{ url_for('menu') }}" class="btn btn-primary w-100 btn-return">⬅ Retour</a>
 </div>
 
 <script>
+    // Bouton de bascule du mode sombre
     const modeBtn = document.getElementById('modeBtn');
     modeBtn.addEventListener('click', () => {
         document.body.classList.toggle('dark-mode');
-        if(document.body.classList.contains('dark-mode')){
+        if (document.body.classList.contains('dark-mode')) {
             modeBtn.textContent = '☀ Mode clair';
             modeBtn.classList.replace('btn-outline-dark', 'btn-outline-light');
         } else {
@@ -105,5 +113,3 @@
 
 </body>
 </html>
-
-

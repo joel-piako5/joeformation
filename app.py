@@ -170,7 +170,7 @@ def liste_etudiants():
     if "user_id" not in session:
         return redirect(url_for("logi"))
     users = User.query.all()
-    return render_template("liste_etudiants.html", etudiants=etudiants)
+    return render_template("liste_etudiants.html")
 
 # ------------------ ADMIN ------------------
 
@@ -345,6 +345,7 @@ if __name__ == "__main__":
         db.create_all()
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
+
 
 
 

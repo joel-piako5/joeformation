@@ -13,7 +13,7 @@ import calendar
 from datetime import date, datetime
 from questions import questions
 
-app = Flask(_name_)
+app = Flask(__name__)
 app.secret_key = 'joegoat532005mmaPK'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///etudiants.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -324,9 +324,10 @@ def quizz():
     return render_template("quizz.html", questions=questions)
 
 # Lancement
-if _name_ == "_main_":
+if __name__ == "__main__":
     with app.app_context():
         db.create_all()
     import os
     port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port, debug=True)
+

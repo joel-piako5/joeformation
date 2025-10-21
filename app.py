@@ -1,4 +1,5 @@
 import sqlite3
+import os
 from sqlite3 import IntegrityError
 from flask import (
     Flask, render_template, request, redirect, url_for, session,
@@ -15,9 +16,13 @@ from questions import questions
 
 app = Flask(__name__)
 app.secret_key = 'joegoat532005mmaPK'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///etudiants.db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+# Utilise PostgreSQL sur Render, sinon SQLite en local
+if os.environ.get("RENDER"):
+    app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
+else:
+    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///etudiants.db"
 
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db = SQLAlchemy(app)
 bcrypt = Bcrypt(app)
 
@@ -330,4 +335,5 @@ if __name__ == "__main__":
     import os
     port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port, debug=True)
+
 

@@ -16,6 +16,7 @@ from questions import questions
 
 app = Flask(__name__)
 app.secret_key = 'joegoat532005mmaPK'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///etudiants.db'
 # Utilise PostgreSQL sur Render, sinon SQLite en local
 if os.environ.get("RENDER"):
     app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
@@ -38,17 +39,17 @@ PDF_EXT = {"pdf"}
 # Modèle utilisateur
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    nom = db.Column(db.String(100))
-    email = db.Column(db.String(100), unique=True)
-    password = db.Column(db.String(100))
-    role = db.Column(db.String(10), default='etudiant')  # 'admin' ou 'etudiant'
+    nom = db.Column(db.String(250))
+    email = db.Column(db.String(250), unique=True)
+    password = db.Column(db.String(250))
+    role = db.Column(db.String(100), default='etudiant')  # 'admin' ou 'etudiant'
 
 # Modèle résultats
 class Resultat(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    nom = db.Column(db.String(100))
-    matricule = db.Column(db.String(50))
-    matiere = db.Column(db.String(100))
+    nom = db.Column(db.String(250))
+    matricule = db.Column(db.String(100))
+    matiere = db.Column(db.String(250))
     note = db.Column(db.Float)
 
 # Route d'accueil
@@ -335,5 +336,6 @@ if __name__ == "__main__":
     import os
     port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port, debug=True)
+
 
 

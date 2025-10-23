@@ -1,21 +1,26 @@
 {% extends "base.html" %}
 {% block title %}Accueil{% endblock %}
+
 {% block content %}
+<!-- =========================================
+     🌐 PAGE D’ACCUEIL — MON SITE E-LEARNING
+     Description : Page d'accueil interactive avec thème sombre/clair,
+     boutons d’action et design moderne responsive.
+========================================= -->
+
 <style>
+    /* === STYLES GÉNÉRAUX === */
     body {
-    margin: 0;
-    padding: 0;
-    /* Suppression de l'image de fond */
-    background-image: none;
-
-    /* Couleur propre et moderne */
-    background-color: #e6f0ff; /* un bleu très clair et doux */
-
-    min-height: 100vh;
-    font-family: 'Poppins', sans-serif;
-    transition: background 0.3s ease, color 0.3s ease;
+        margin: 0;
+        padding: 0;
+        background-image: none;
+        background-color: #e6f0ff; /* Bleu clair doux */
+        min-height: 100vh;
+        font-family: 'Poppins', sans-serif;
+        transition: background 0.3s ease, color 0.3s ease;
     }
 
+    /* === BOUTON DU MODE SOMBRE / CLAIR === */
     .theme-toggle {
         position: fixed;
         top: 15px;
@@ -27,12 +32,14 @@
         background: none;
     }
 
+    /* === CONTENEUR PRINCIPAL === */
     .content-wrapper {
         text-align: center;
         margin-top: 120px;
         padding: 0 15px;
     }
 
+    /* === TITRES === */
     h1 {
         font-size: 2.5rem;
         color: #0faef8;
@@ -45,6 +52,7 @@
         color: #1e1e2f;
     }
 
+    /* === BOUTONS D’ACTION === */
     .btn-action {
         padding: 15px 25px;
         border-radius: 8px;
@@ -59,11 +67,13 @@
         transform: translateY(-3px);
     }
 
-    .btn-videos { background: #0faef8; }
-    .btn-pdfs { background: #e60cd3; }
-    .btn-admin { background: #4607f5; }
-    .btn-dashboard { background: #e4402a; }
+    /* Couleurs spécifiques des boutons */
+    .btn-videos { background: #0faef8; }     /* Bleu clair */
+    .btn-pdfs { background: #e60cd3; }       /* Rose vif */
+    .btn-admin { background: #4607f5; }      /* Violet */
+    .btn-dashboard { background: #e4402a; }  /* Rouge-orange */
 
+    /* === SECTION D’INFORMATION === */
     .info-section {
         background-color: rgba(255,255,255,0.9);
         border-left: 5px solid #0faef8;
@@ -82,7 +92,7 @@
         margin: 8px 0;
     }
 
-    /* Mode sombre */
+    /* === MODE SOMBRE === */
     body.dark {
         background: #121212 !important;
         color: #f8f9fa;
@@ -102,6 +112,7 @@
     body.dark .btn-admin { background: #4607f5; }
     body.dark .btn-dashboard { background: #e4402a; }
 
+    /* === VERSION MOBILE === */
     @media (max-width: 480px) {
         h1 { font-size: 2rem; }
         h2 { font-size: 1.5rem; }
@@ -109,40 +120,56 @@
     }
 </style>
 
-<!-- Bouton mode sombre / clair -->
+<!-- =========================================
+     🌓 BOUTON POUR LE MODE SOMBRE / CLAIR
+========================================= -->
 <button class="theme-toggle" id="theme-toggle">🌙</button>
 
+<!-- =========================================
+     🏠 CONTENU PRINCIPAL
+========================================= -->
 <div class="content-wrapper">
+    <!-- Titre principal -->
     <h1>Bienvenue sur Mon Site E-learning</h1>
     <h2>Choisissez votre action :</h2>
 
+    <!-- Boutons d’accès rapides -->
     <div>
-        <a href="{{ url_for('videos') }}" class="btn-action btn-videos">Vidéos</a>
-        <a href="{{ url_for('pdfs') }}" class="btn-action btn-pdfs">PDFs</a>
-        <a href="{{ url_for('logi') }}" class="btn-action btn-admin">Seul l'administrateur</a>
-        <a href="{{ url_for('dashboard') }}" class="btn-action btn-dashboard">Retour au bord</a>
+        <a href="{{ url_for('videos') }}" class="btn-action btn-videos">🎬 Vidéos</a>
+        <a href="{{ url_for('pdfs') }}" class="btn-action btn-pdfs">📄 PDFs</a>
+        <a href="{{ url_for('logi') }}" class="btn-action btn-admin">🔐 Espace Admin</a>
+        <a href="{{ url_for('dashboard') }}" class="btn-action btn-dashboard">📊 Tableau de bord</a>
+    </div>
 
-
-        <p> <strong>Vidéos de formation :</strong> Accédez à toutes vos vidéos éducatives pour apprendre à votre rythme. Chaque vidéo est conçue pour être courte, claire et pratique.</p>
-        <p> <strong>Documents PDF :</strong> Téléchargez les supports de cours, exercices corrigés et fiches résumées en format PDF pour étudier hors ligne.</p>
-        <p> <strong>Espace Administrateur :</strong> Ce bouton est réservé aux administrateurs. Il permet de gérer les utilisateurs, ajouter de nouvelles vidéos et organiser les contenus.</p>
-        <p> <strong>Astuce :</strong> Si un contenu ne s'affiche pas correctement, actualisez la page ou vérifiez votre connexion.</p>
+    <!-- =========================================
+         ℹ SECTION D’INFORMATIONS
+    ========================================= -->
+    <div class="info-section">
+        <p><strong>🎥 Vidéos de formation :</strong> Accédez à toutes vos vidéos éducatives pour apprendre à votre rythme. Chaque contenu est concis, clair et pratique.</p>
+        <p><strong>📘 Documents PDF :</strong> Téléchargez les supports de cours, exercices corrigés et fiches récapitulatives pour étudier hors ligne.</p>
+        <p><strong>🔑 Espace Administrateur :</strong> Zone réservée à l’administration du site pour gérer les utilisateurs et les ressources.</p>
+        <p><strong>💡 Astuce :</strong> Si un contenu ne s’affiche pas correctement, actualisez la page ou vérifiez votre connexion internet.</p>
     </div>
 </div>
+
+<!-- =========================================
+     💻 SCRIPT : GESTION DU MODE SOMBRE / CLAIR
+========================================= -->
 <script>
     const toggleBtn = document.getElementById("theme-toggle");
     const body = document.body;
 
-    // Charger le thème stocké
+    // Charger le thème sauvegardé
     if (localStorage.getItem("theme") === "dark") {
         body.classList.add("dark");
-        toggleBtn.textContent = "☀️";
+        toggleBtn.textContent = "☀";
     }
 
+    // Bascule du thème au clic
     toggleBtn.addEventListener("click", () => {
         body.classList.toggle("dark");
         if (body.classList.contains("dark")) {
-            toggleBtn.textContent = "☀️";
+            toggleBtn.textContent = "☀";
             localStorage.setItem("theme", "dark");
         } else {
             toggleBtn.textContent = "🌙";
@@ -150,8 +177,5 @@
         }
     });
 </script>
+
 {% endblock %}
-
-
-
-

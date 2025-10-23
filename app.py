@@ -153,22 +153,6 @@ def admin_users():
     users = User.query.all()
     return render_template("admin_users.html", users=users)
 
-@app.route('/admin/delete_user/<int:id>', methods=['POST', 'GET'])
-def delete_user(id):
-    if not session.get("is_admin"):
-        flash("Accès refusé.", "danger")
-        return redirect(url_for("logi"))
-    user = User.query.get_or_404(id)
-    try:
-        db.session.delete(user)
-        db.session.commit()
-        flash(f"Utilisateur {user.nom} supprimé avec succès.", "success")
-    except Exception as e:
-        db.session.rollback()
-        flash("Erreur lors de la suppression.", "danger")
-        print(e)
-    return redirect(url_for('admin_users'))
-
 # --- Fichiers (vidéos / PDF) ---
 def allowed_file(filename, filetype):
     ext = filename.rsplit(".", 1)[-1].lower()
@@ -289,6 +273,7 @@ if __name__ == "__main__":
         db.create_all()
     port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port, debug=True)
+
 
 
 
